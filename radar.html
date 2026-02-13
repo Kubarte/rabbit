@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rabbit Radar — MegaETH Ecosystem Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Karla:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e0e0d;--bg2:#181716;--bg3:#211f1e;
+  --ivory:#f2efe8;--stone:#b5aea3;--earth:#8a8379;--dim:#3d3a35;
+  --gold:#d4ad6a;--sage:#8aad84;
+  --red:#c75c5c;--green:#6db86b;--blue:#6b9cc7;--purple:#a17dc7;
+  --border:rgba(242,239,232,.08);--border2:rgba(242,239,232,.16);
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ivory);font-family:'Karla',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;display:flex;flex-direction:column}
+::selection{background:var(--gold);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+
+.grain{position:fixed;inset:0;opacity:.018;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;z-index:10000}
+
+/* layout */
+.app{flex:1;display:flex;flex-direction:column;width:100%;position:relative;z-index:1;overflow:hidden}
+
+/* top bar */
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{width:20px;height:26px;color:var(--gold)}
+.brand-text{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--stone)}
+.brand-text .slash{color:var(--dim);margin:0 4px}
+.brand-text .app-name{color:var(--gold)}
+.top-center{display:flex;align-items:center;gap:8px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 2s infinite}
+@keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(109,184,107,.4)}50%{opacity:.6;box-shadow:0 0 0 6px rgba(109,184,107,0)}}
+.live-text{font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:var(--green)}
+.top-r{display:flex;align-items:center;gap:16px}
+.search-box{
+  display:flex;align-items:center;gap:8px;padding:8px 16px;
+  background:var(--bg2);border:1px solid var(--border);width:240px;
+}
+.search-box input{background:none;border:none;color:var(--ivory);font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.05em;outline:none;width:100%}
+.search-box input::placeholder{color:var(--earth)}
+.search-icon{color:var(--earth);font-size:.7rem}
+.back-link{font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--earth);cursor:pointer;transition:color .3s}
+.back-link:hover{color:var(--ivory)}
+
+/* main grid */
+.dashboard{flex:1;display:grid;grid-template-columns:220px 1fr 320px;overflow:hidden}
+
+/* ═══ LEFT SIDEBAR — FILTERS ═══ */
+.filters{border-right:1px solid var(--border);padding:24px 20px;overflow-y:auto;display:flex;flex-direction:column;gap:28px}
+.f-group-title{font-family:'IBM Plex Mono',monospace;font-size:.42rem;letter-spacing:.25em;text-transform:uppercase;color:var(--earth);margin-bottom:12px}
+.f-option{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:8px 10px;cursor:pointer;transition:all .2s;border-radius:2px;
+}
+.f-option:hover{background:var(--bg2)}
+.f-option.active{background:rgba(212,173,106,.06)}
+.f-label{display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--stone);font-weight:400}
+.f-option.active .f-label{color:var(--ivory)}
+.f-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.f-count{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:var(--earth);letter-spacing:.05em}
+
+/* ecosystem stats in sidebar */
+.eco-stats{display:flex;flex-direction:column;gap:0}
+.eco-stat{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--border)}
+.eco-stat:first-child{border-top:1px solid var(--border)}
+.eco-k{font-family:'IBM Plex Mono',monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--earth)}
+.eco-v{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.05rem}
+.eco-v .gold{color:var(--gold)}
+.eco-v .green{color:var(--green)}
+
+/* ═══ MAIN FEED ═══ */
+.feed{overflow-y:auto;padding:0}
+.feed-header{position:sticky;top:0;z-index:10;background:var(--bg);padding:16px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.feed-title{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:1.3rem;letter-spacing:-.01em}
+.feed-title em{font-style:italic;color:var(--gold)}
+.feed-count{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:var(--earth);letter-spacing:.1em}
+
+.feed-list{padding:0}
+
+/* event row */
+.event{
+  display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:start;
+  padding:16px 24px;border-bottom:1px solid var(--border);
+  transition:background .2s;cursor:pointer;
+  animation:fadeIn .4s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.event:hover{background:var(--bg2)}
+.event.new-event{animation:newPulse .6s ease}
+@keyframes newPulse{0%{background:rgba(212,173,106,.06)}100%{background:transparent}}
+
+.ev-icon{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;background:var(--bg2);border:1px solid var(--border);
+  flex-shrink:0;
+}
+.ev-icon.launch{background:rgba(212,173,106,.06);border-color:rgba(212,173,106,.15)}
+.ev-icon.liq{background:rgba(109,184,107,.06);border-color:rgba(109,184,107,.15)}
+.ev-icon.whale{background:rgba(107,156,199,.06);border-color:rgba(107,156,199,.15)}
+.ev-icon.deploy{background:rgba(161,125,199,.06);border-color:rgba(161,125,199,.15)}
+.ev-icon.swap{background:rgba(242,239,232,.03);border-color:var(--border2)}
+
+.ev-body{min-width:0}
+.ev-headline{font-size:.84rem;font-weight:500;line-height:1.4;margin-bottom:3px}
+.ev-headline .token{color:var(--gold);font-weight:600}
+.ev-headline .addr{color:var(--stone);font-family:'IBM Plex Mono',monospace;font-size:.72rem}
+.ev-sub{font-size:.72rem;color:var(--earth);line-height:1.4;font-weight:300}
+.ev-sub .green{color:var(--green)}.ev-sub .red{color:var(--red)}.ev-sub .gold{color:var(--gold)}
+
+.ev-meta{text-align:right;flex-shrink:0}
+.ev-time{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:var(--earth);letter-spacing:.05em;margin-bottom:4px}
+.ev-badge{
+  display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.38rem;
+  letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:2px;
+}
+.ev-badge.launch{color:var(--gold);border:1px solid rgba(212,173,106,.2)}
+.ev-badge.liq{color:var(--green);border:1px solid rgba(109,184,107,.2)}
+.ev-badge.whale{color:var(--blue);border:1px solid rgba(107,156,199,.2)}
+.ev-badge.deploy{color:var(--purple);border:1px solid rgba(161,125,199,.2)}
+.ev-badge.swap{color:var(--stone);border:1px solid var(--border2)}
+
+/* ═══ RIGHT PANEL ═══ */
+.panel{border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+
+.panel-section{padding:20px 24px;border-bottom:1px solid var(--border)}
+.panel-title{font-family:'IBM Plex Mono',monospace;font-size:.42rem;letter-spacing:.25em;text-transform:uppercase;color:var(--earth);margin-bottom:16px}
+
+/* trending tokens */
+.trend{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);transition:all .2s;cursor:pointer}
+.trend:last-child{border-bottom:none}
+.trend:hover{padding-left:6px}
+.trend-rank{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.3rem;color:var(--dim);width:22px;text-align:center}
+.trend:nth-child(-n+3) .trend-rank{color:var(--gold)}
+.trend-info{flex:1;min-width:0}
+.trend-name{font-weight:500;font-size:.82rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trend-pair{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:var(--earth);letter-spacing:.05em}
+.trend-data{text-align:right}
+.trend-price{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:.95rem;margin-bottom:2px}
+.trend-change{font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.05em}
+.trend-change.up{color:var(--green)}.trend-change.down{color:var(--red)}
+
+/* whale alerts */
+.whale-alert{padding:12px 0;border-bottom:1px solid var(--border)}
+.whale-alert:last-child{border-bottom:none}
+.wa-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.wa-action{font-size:.78rem;font-weight:500}
+.wa-action .token{color:var(--gold);font-weight:600}
+.wa-time{font-family:'IBM Plex Mono',monospace;font-size:.4rem;color:var(--earth);letter-spacing:.05em}
+.wa-detail{font-family:'IBM Plex Mono',monospace;font-size:.52rem;color:var(--stone);line-height:1.5}
+.wa-detail .addr{color:var(--earth)}
+.wa-amount{font-weight:600;color:var(--ivory)}
+
+/* watchlist */
+.wl-empty{font-size:.78rem;color:var(--earth);font-weight:300;padding:8px 0;line-height:1.6}
+.wl-hint{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:var(--dim);margin-top:6px;letter-spacing:.05em}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:1100px){
+  .dashboard{grid-template-columns:1fr 280px}
+  .filters{display:none}
+}
+@media(max-width:760px){
+  .dashboard{grid-template-columns:1fr}
+  .panel{display:none}
+  .search-box{width:160px}
+  .top{padding:12px 16px}
+  .event{padding:14px 16px}
+}
+.app-nav{display:flex;gap:4px;align-items:center}.app-nav a{font-family:"IBM Plex Mono",monospace;font-size:.44rem;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;color:var(--earth);border:1px solid transparent;transition:all .3s}.app-nav a:hover{color:var(--ivory);border-color:var(--border)}.app-nav a.current{color:var(--gold);border-color:rgba(212,173,106,.2)}.app-nav .sep{color:var(--dim);font-size:.5rem}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="app">
+  <!-- TOP BAR -->
+  <div class="top">
+    <div class="brand">
+      <svg viewBox="0 0 200 260" fill="currentColor"><path d="M68 115 C62 52, 48 6, 58 2 C70-4, 84 8, 90 22 C98 42, 96 82, 92 115" opacity=".85"/><path d="M120 110 C118 44, 126 0, 138-2 C150-4, 152 14, 148 30 C142 54, 132 84, 126 110" opacity=".85"/><ellipse cx="100" cy="178" rx="76" ry="72" opacity=".9"/><ellipse cx="100" cy="183" rx="64" ry="60" fill="#0e0e0d" opacity=".92"/><ellipse cx="78" cy="172" rx="8" ry="10" fill="#0e0e0d"/><ellipse cx="76" cy="168" rx="3" ry="4" opacity=".8"/><ellipse cx="126" cy="170" rx="8" ry="10" fill="#0e0e0d"/><ellipse cx="124" cy="166" rx="3" ry="4" opacity=".8"/></svg>
+      <div class="brand-text">$rabbit <span class="slash">/</span> <span class="app-name">radar</span></div>
+    </div>
+    <div class="top-center">
+      <div class="live-dot"></div>
+      <div class="live-text">Live — MegaETH Mainnet</div>
+    </div>
+    <div class="top-r">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input type="text" placeholder="Search token or address..." id="searchInput" oninput="filterEvents()">
+      </div>
+      <div class="app-nav"><a href="index.html">← Site</a><span class="sep">·</span><a href="rabbitrun.html">Run</a><a href="radar.html" class="current">Radar</a><a href="dao.html">DAO</a><a href="speedproof.html">Speed</a></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard">
+    <!-- LEFT FILTERS -->
+    <div class="filters">
+      <div>
+        <div class="f-group-title">Event Type</div>
+        <div class="f-option active" data-filter="all" onclick="setFilter(this,'all')">
+          <div class="f-label"><span class="f-dot" style="background:var(--ivory)"></span> All Events</div>
+          <div class="f-count" id="countAll">0</div>
+        </div>
+        <div class="f-option" data-filter="launch" onclick="setFilter(this,'launch')">
+          <div class="f-label"><span class="f-dot" style="background:var(--gold)"></span> Token Launches</div>
+          <div class="f-count" id="countLaunch">0</div>
+        </div>
+        <div class="f-option" data-filter="liq" onclick="setFilter(this,'liq')">
+          <div class="f-label"><span class="f-dot" style="background:var(--green)"></span> Liquidity</div>
+          <div class="f-count" id="countLiq">0</div>
+        </div>
+        <div class="f-option" data-filter="whale" onclick="setFilter(this,'whale')">
+          <div class="f-label"><span class="f-dot" style="background:var(--blue)"></span> Whale Moves</div>
+          <div class="f-count" id="countWhale">0</div>
+        </div>
+        <div class="f-option" data-filter="deploy" onclick="setFilter(this,'deploy')">
+          <div class="f-label"><span class="f-dot" style="background:var(--purple)"></span> Deploys</div>
+          <div class="f-count" id="countDeploy">0</div>
+        </div>
+        <div class="f-option" data-filter="swap" onclick="setFilter(this,'swap')">
+          <div class="f-label"><span class="f-dot" style="background:var(--stone)"></span> Large Swaps</div>
+          <div class="f-count" id="countSwap">0</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="f-group-title">MegaETH Stats</div>
+        <div class="eco-stats">
+          <div class="eco-stat"><div class="eco-k">Block Time</div><div class="eco-v"><span class="gold">10ms</span></div></div>
+          <div class="eco-stat"><div class="eco-k">TPS</div><div class="eco-v" id="statTps">48,291</div></div>
+          <div class="eco-stat"><div class="eco-k">Gas Price</div><div class="eco-v">0.001 gwei</div></div>
+          <div class="eco-stat"><div class="eco-k">Contracts</div><div class="eco-v" id="statContracts">2,847</div></div>
+          <div class="eco-stat"><div class="eco-k">24h Txns</div><div class="eco-v"><span class="green" id="statTxns">4.2M</span></div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="f-group-title">Holder Gate</div>
+        <div style="font-size:.74rem;color:var(--stone);line-height:1.6;font-weight:300">
+          Hold <span style="color:var(--gold);font-weight:500">$RABBIT</span> to unlock whale alerts and early launch notifications.
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN FEED -->
+    <div class="feed">
+      <div class="feed-header">
+        <div class="feed-title">Live <em>Feed</em></div>
+        <div class="feed-count" id="feedCount">Loading events...</div>
+      </div>
+      <div class="feed-list" id="feedList"></div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel">
+      <div class="panel-section">
+        <div class="panel-title">Trending on MegaETH</div>
+        <div id="trending">
+          <div class="trend"><div class="trend-rank">1</div><div class="trend-info"><div class="trend-name">$RABBIT</div><div class="trend-pair">RABBIT / WETH</div></div><div class="trend-data"><div class="trend-price">$0.00042</div><div class="trend-change up">+34.7%</div></div></div>
+          <div class="trend"><div class="trend-rank">2</div><div class="trend-info"><div class="trend-name">$MEGA</div><div class="trend-pair">MEGA / WETH</div></div><div class="trend-data"><div class="trend-price">$0.0128</div><div class="trend-change up">+18.2%</div></div></div>
+          <div class="trend"><div class="trend-rank">3</div><div class="trend-info"><div class="trend-name">$SPEEDY</div><div class="trend-pair">SPEEDY / WETH</div></div><div class="trend-data"><div class="trend-price">$0.00089</div><div class="trend-change up">+12.4%</div></div></div>
+          <div class="trend"><div class="trend-rank">4</div><div class="trend-info"><div class="trend-name">$BOLT</div><div class="trend-pair">BOLT / WETH</div></div><div class="trend-data"><div class="trend-price">$0.00156</div><div class="trend-change down">−5.3%</div></div></div>
+          <div class="trend"><div class="trend-rank">5</div><div class="trend-info"><div class="trend-name">$FLUX</div><div class="trend-pair">FLUX / WETH</div></div><div class="trend-data"><div class="trend-price">$0.00031</div><div class="trend-change up">+8.9%</div></div></div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">Whale Alerts</div>
+        <div id="whaleAlerts">
+          <div class="whale-alert">
+            <div class="wa-head"><div class="wa-action">Bought <span class="token">$RABBIT</span></div><div class="wa-time">2m ago</div></div>
+            <div class="wa-detail"><span class="addr">0xd41c...9f1a</span> bought <span class="wa-amount">1.2M $RABBIT</span> for 8.4 ETH</div>
+          </div>
+          <div class="whale-alert">
+            <div class="wa-head"><div class="wa-action">Added LP for <span class="token">$MEGA</span></div><div class="wa-time">8m ago</div></div>
+            <div class="wa-detail"><span class="addr">0x7a3f...e82d</span> added <span class="wa-amount">24 ETH</span> liquidity</div>
+          </div>
+          <div class="whale-alert">
+            <div class="wa-head"><div class="wa-action">Bridged to <span class="token">MegaETH</span></div><div class="wa-time">14m ago</div></div>
+            <div class="wa-detail"><span class="addr">0x92b8...3c45</span> bridged <span class="wa-amount">50 ETH</span> from mainnet</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">Your Watchlist</div>
+        <div class="wl-empty">
+          Add tokens to your watchlist by clicking on events in the feed.
+          <div class="wl-hint">Requires $RABBIT to unlock full tracking.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ SIMULATED EVENT DATA ═══
+const tokens=['$RABBIT','$MEGA','$SPEEDY','$BOLT','$FLUX','$NEON','$HARE','$TURBO','$GLIDE','$WARP','$PULSE','$DRIFT','$VELO','$SWIFT','$DASH'];
+const addrs=['0x7a3f...e82d','0xd41c...9f1a','0x92b8...3c45','0x1e5a...d738','0xf83e...12ab','0xab42...7f3c','0x3d91...c4e8','0xc7f2...a501','0x58e6...b92d','0x0a1b...6dc4'];
+const types=['launch','liq','whale','deploy','swap'];
+const icons={launch:'🚀',liq:'💧',whale:'🐋',deploy:'📦',swap:'↔'};
+const typeLabels={launch:'Launch',liq:'Liquidity',whale:'Whale',deploy:'Deploy',swap:'Swap'};
+
+let allEvents=[];
+let activeFilter='all';
+let eventId=0;
+let counts={all:0,launch:0,liq:0,whale:0,deploy:0,swap:0};
+
+function randomAddr(){return addrs[Math.floor(Math.random()*addrs.length)]}
+function randomToken(){return tokens[Math.floor(Math.random()*tokens.length)]}
+function randomAmount(min,max){return(min+Math.random()*(max-min)).toFixed(min>10?0:2)}
+function timeAgo(sec){return sec<60?sec+'s ago':Math.floor(sec/60)+'m ago'}
+
+function generateEvent(){
+  const type=types[Math.floor(Math.random()*types.length)];
+  const token=randomToken();
+  const addr=randomAddr();
+  const id=eventId++;
+  let headline='',sub='';
+
+  switch(type){
+    case 'launch':
+      const supply=randomAmount(1,100);
+      headline=`New token <span class="token">${token}</span> launched on SLVR`;
+      sub=`${supply}M supply · Paired vs WETH · <span class="gold">LP locked</span> · By ${addr}`;
+      break;
+    case 'liq':
+      const ethAmt=randomAmount(1,50);
+      const action=Math.random()>.3?'added':'removed';
+      headline=`${addr} ${action} liquidity for <span class="token">${token}</span>`;
+      sub=`<span class="${action==='added'?'green':'red'}">${action==='added'?'+':'−'}${ethAmt} ETH</span> · V3 position · ${action==='added'?'Range: Full':'Closed position'}`;
+      break;
+    case 'whale':
+      const amount=randomAmount(100,5000);
+      const side=Math.random()>.4?'bought':'sold';
+      const eth=randomAmount(.5,20);
+      headline=`${addr} <span class="token">${side}</span> ${amount}K <span class="token">${token}</span>`;
+      sub=`${side==='bought'?'<span class="green">':'<span class="red">'}${side==='bought'?'+':'-'}${eth} ETH</span> · ${side==='bought'?'Accumulating':'Taking profit'} · Wallet holds ${randomAmount(10,500)}K`;
+      break;
+    case 'deploy':
+      const names=['DEX Router','Staking Vault','NFT Minter','Bridge Adapter','Lending Pool','Governance','Yield Farm','Oracle','Timelock'];
+      const contractName=names[Math.floor(Math.random()*names.length)];
+      headline=`New contract deployed: <span class="token">${contractName}</span>`;
+      sub=`By ${addr} · Verified: <span class="gold">Pending</span> · ${Math.floor(Math.random()*500)+50} lines`;
+      break;
+    case 'swap':
+      const swapAmt=randomAmount(1,30);
+      const received=randomAmount(50,2000);
+      headline=`${addr} swapped <span class="token">${swapAmt} ETH</span> → <span class="token">${received}K ${token}</span>`;
+      sub=`Via SLVR · Slippage: ${(Math.random()*.5).toFixed(2)}% · Settlement: <span class="gold">&lt;10ms</span>`;
+      break;
+  }
+
+  return{id,type,token,addr,headline,sub,timestamp:Date.now(),age:0};
+}
+
+function renderEvent(ev){
+  return`
+    <div class="event new-event" data-type="${ev.type}" data-id="${ev.id}" onclick="selectEvent(${ev.id})">
+      <div class="ev-icon ${ev.type}">${icons[ev.type]}</div>
+      <div class="ev-body">
+        <div class="ev-headline">${ev.headline}</div>
+        <div class="ev-sub">${ev.sub}</div>
+      </div>
+      <div class="ev-meta">
+        <div class="ev-time">${timeAgo(ev.age)}</div>
+        <div class="ev-badge ${ev.type}">${typeLabels[ev.type]}</div>
+      </div>
+    </div>
+  `;
+}
+
+function refreshFeed(){
+  const list=document.getElementById('feedList');
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const filtered=allEvents.filter(ev=>{
+    if(activeFilter!=='all'&&ev.type!==activeFilter)return false;
+    if(search&&!ev.token.toLowerCase().includes(search)&&!ev.addr.toLowerCase().includes(search)&&!ev.headline.toLowerCase().includes(search))return false;
+    return true;
+  });
+  list.innerHTML=filtered.map(renderEvent).join('');
+  document.getElementById('feedCount').textContent=filtered.length+' events · '+allEvents.length+' total';
+}
+
+function addNewEvent(){
+  const ev=generateEvent();
+  allEvents.unshift(ev);
+  if(allEvents.length>200)allEvents.pop();
+  counts.all++;
+  counts[ev.type]++;
+  updateCounts();
+  refreshFeed();
+}
+
+function updateCounts(){
+  document.getElementById('countAll').textContent=counts.all;
+  document.getElementById('countLaunch').textContent=counts.launch;
+  document.getElementById('countLiq').textContent=counts.liq;
+  document.getElementById('countWhale').textContent=counts.whale;
+  document.getElementById('countDeploy').textContent=counts.deploy;
+  document.getElementById('countSwap').textContent=counts.swap;
+}
+
+function setFilter(el,type){
+  document.querySelectorAll('.f-option').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  activeFilter=type;
+  refreshFeed();
+}
+
+function filterEvents(){refreshFeed()}
+
+function selectEvent(id){
+  // highlight selected event
+  document.querySelectorAll('.event').forEach(e=>e.style.background='');
+  const el=document.querySelector(`[data-id="${id}"]`);
+  if(el)el.style.background='var(--bg2)';
+}
+
+// Age updater
+setInterval(()=>{
+  allEvents.forEach(ev=>ev.age=Math.floor((Date.now()-ev.timestamp)/1000));
+  document.querySelectorAll('.ev-time').forEach((el,i)=>{
+    if(allEvents[i])el.textContent=timeAgo(allEvents[i].age);
+  });
+},5000);
+
+// Simulated stats jitter
+setInterval(()=>{
+  document.getElementById('statTps').textContent=(45000+Math.floor(Math.random()*8000)).toLocaleString();
+  document.getElementById('statContracts').textContent=(2800+Math.floor(Math.random()*200)).toLocaleString();
+  const online=document.querySelector('#statTxns');
+  if(online)online.textContent=(3.8+Math.random()*1.2).toFixed(1)+'M';
+},8000);
+
+// Trending price jitter
+setInterval(()=>{
+  document.querySelectorAll('.trend-price').forEach(el=>{
+    const base=parseFloat(el.textContent.replace('$',''));
+    const jitter=base*(0.98+Math.random()*0.04);
+    el.textContent='$'+jitter.toFixed(jitter>0.01?4:5);
+  });
+},6000);
+
+// ═══ INIT ═══
+// Generate initial batch
+for(let i=0;i<30;i++){
+  const ev=generateEvent();
+  ev.age=Math.floor(Math.random()*600);
+  ev.timestamp=Date.now()-ev.age*1000;
+  allEvents.push(ev);
+  counts.all++;
+  counts[ev.type]++;
+}
+allEvents.sort((a,b)=>b.timestamp-a.timestamp);
+updateCounts();
+refreshFeed();
+
+// Stream new events every 3-8 seconds
+function scheduleNext(){
+  const delay=3000+Math.random()*5000;
+  setTimeout(()=>{addNewEvent();scheduleNext()},delay);
+}
+scheduleNext();
+</script>
+</body>
+</html>

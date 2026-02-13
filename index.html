@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$RABBIT — Down The Rabbithole</title>
+<meta name="description" content="The community token of MegaETH. Fair launched. Zero insiders. The meme that gives back.">
+<meta property="og:title" content="$RABBIT — Down The Rabbithole">
+<meta property="og:description" content="The community token of MegaETH — the first real-time blockchain. Fair launched on SLVR. The meme that gives back.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/logo.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="$RABBIT — Down The Rabbithole">
+<meta name="twitter:description" content="The community token of MegaETH. The meme that gives back.">
+<meta name="theme-color" content="#0e0e0d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Karla:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🐇</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e0e0d;
+  --bg2:#181716;
+  --bg3:#211f1e;
+  --ivory:#f2efe8;
+  --stone:#b5aea3;
+  --earth:#8a8379;
+  --dim:#3d3a35;
+  --dim2:#2a2825;
+  --gold:#d4ad6a;
+  --sage:#8aad84;
+  --border:rgba(242,239,232,.08);
+  --border2:rgba(242,239,232,.16);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ivory);font-family:'Karla',sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;overflow-x:hidden;letter-spacing:.01em;cursor:none}
+::selection{background:var(--gold);color:var(--bg)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px}
+a{color:inherit;text-decoration:none}
+
+/* ═══ CUSTOM CURSOR ═══ */
+@media(pointer:fine){
+  *{cursor:none!important}
+  .cursor-dot{position:fixed;top:0;left:0;width:5px;height:5px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);opacity:0;transition:opacity .3s,width .25s,height .25s,background .25s}
+  .cursor-dot.visible{opacity:.9}
+  .cursor-ring{position:fixed;top:0;left:0;width:36px;height:36px;border:1px solid rgba(212,173,106,.4);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);opacity:0;transition:opacity .3s,width .3s cubic-bezier(.22,1,.36,1),height .3s cubic-bezier(.22,1,.36,1),border-color .3s,background .3s}
+  .cursor-ring.visible{opacity:1}
+  .cursor-ring.hovering{width:52px;height:52px;border-color:rgba(212,173,106,.65);background:rgba(212,173,106,.04)}
+}
+@media(max-width:960px),(pointer:coarse){.cursor-ring,.cursor-dot{display:none!important}body,*{cursor:auto!important}}
+
+/* ═══ CUSTOM CURSOR ═══ */
+/* ═══ PROGRESS ═══ */
+#prog{position:fixed;top:0;left:0;height:1px;z-index:9999;width:0;background:var(--gold);pointer-events:none;opacity:.6}
+
+/* ═══ GRAIN (very subtle) ═══ */
+.grain{position:fixed;inset:0;opacity:.018;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;z-index:10000}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;width:100%;z-index:800;padding:28px 60px;display:flex;justify-content:space-between;align-items:center;transition:all .6s cubic-bezier(.22,1,.36,1)}
+nav.scrolled{padding:18px 60px;background:rgba(17,17,16,.92);backdrop-filter:blur(30px);border-bottom:1px solid var(--border)}
+.n-brand{display:flex;align-items:center;gap:12px}
+.n-brand svg{width:22px;height:28px;opacity:.8}
+.n-brand span{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--stone)}
+.n-links{display:flex;align-items:center;gap:32px}
+.n-links a{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);transition:color .4s}
+.n-links a:hover{color:var(--ivory)}
+.n-cta{color:var(--gold)!important;padding:10px 24px;border:1px solid rgba(212,173,106,.35);transition:all .4s!important}
+.n-cta:hover{background:var(--gold);color:var(--bg)!important;border-color:var(--gold)}
+
+/* ═══ HERO ═══ */
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:0 60px;position:relative;overflow:hidden}
+.hero-content{max-width:900px;position:relative;z-index:2}
+
+.hero-eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:40px;display:flex;align-items:center;gap:14px;
+  opacity:0;animation:fadeIn .8s .2s ease forwards;
+}
+.hero-eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.6}
+
+.hero h1{
+  font-family:'Cormorant Garamond',serif;font-weight:400;
+  font-size:clamp(3.8rem,8.5vw,8.5rem);line-height:.92;letter-spacing:-.03em;
+  opacity:0;animation:fadeIn .8s .35s ease forwards;
+}
+.hero h1 em{font-style:italic;font-weight:500;color:var(--gold)}
+
+.hero-sub{
+  margin-top:36px;font-size:1.05rem;color:var(--stone);line-height:1.8;max-width:460px;font-weight:300;
+  opacity:0;animation:fadeIn .8s .5s ease forwards;
+}
+
+.hero-actions{
+  margin-top:48px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;
+  opacity:0;animation:fadeIn .8s .65s ease forwards;
+}
+
+@keyframes fadeIn{to{opacity:1}}
+
+.btn-primary{
+  font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;
+  padding:18px 40px;background:var(--gold);color:var(--bg);border:none;
+  transition:all .4s cubic-bezier(.22,1,.36,1);
+}
+.btn-primary:hover{box-shadow:0 8px 32px rgba(196,165,123,.15);transform:translateY(-2px)}
+
+.btn-ghost{
+  font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:400;
+  padding:18px 40px;background:transparent;color:var(--ivory);border:1px solid var(--earth);
+  transition:all .4s cubic-bezier(.22,1,.36,1);
+}
+.btn-ghost:hover{border-color:var(--ivory);transform:translateY(-2px)}
+
+/* rabbit mark in hero — positioned right */
+.hero-mark{position:absolute;right:60px;bottom:15%;z-index:1;opacity:.35}
+.hero-mark svg{width:clamp(300px,35vw,500px);height:auto}
+
+/* ═══ TICKER ═══ */
+.ticker{padding:20px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;white-space:nowrap}
+.ticker-track{display:inline-flex;animation:marquee 40s linear infinite}
+.ticker-item{font-family:'IBM Plex Mono',monospace;font-size:.52rem;letter-spacing:.15em;text-transform:uppercase;color:var(--stone);padding:0 48px;flex-shrink:0}
+.ticker-item span{color:var(--gold);font-weight:500}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* ═══ SECTIONS ═══ */
+.section{padding:180px 60px;position:relative}
+
+.section-label{
+  font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--earth);margin-bottom:80px;display:flex;align-items:center;gap:20px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border2)}
+.section-label .num{color:var(--stone)}
+
+/* ═══ REVEALS ═══ */
+.reveal{opacity:0;transition:opacity .9s ease}
+.reveal.visible{opacity:1}
+
+/* ═══ ABOUT ═══ */
+.about-layout{display:grid;grid-template-columns:1fr 1fr;gap:120px;max-width:1200px}
+.about-text h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(2rem,3.5vw,3rem);line-height:1.12;letter-spacing:-.02em;margin-bottom:32px}
+.about-text h2 em{font-style:italic;font-weight:500;color:var(--gold)}
+.about-text p{color:var(--stone);line-height:1.85;font-size:.92rem;margin-bottom:18px;font-weight:300}
+
+.about-quote{
+  margin:36px 0;padding:28px 0 28px 28px;
+  border-left:1px solid var(--gold);
+}
+.about-quote p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.15rem;line-height:1.65;color:var(--ivory);font-weight:400}
+
+.about-facts{padding-top:8px}
+.fact-row{display:grid;grid-template-columns:100px 1fr;gap:32px;padding:24px 0;border-bottom:1px solid var(--border);transition:all .3s}
+.fact-row:first-child{border-top:1px solid var(--border)}
+.fact-row:hover{padding-left:8px}
+.fact-label{font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:var(--earth);padding-top:4px}
+.fact-value{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.25rem;letter-spacing:-.01em}
+.fact-note{font-size:.76rem;color:var(--earth);margin-top:4px;font-weight:300;line-height:1.5}
+.fact-gold{color:var(--gold)}
+
+/* ═══ DIVIDER QUOTE ═══ */
+.divider-quote{padding:120px 60px;text-align:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.divider-quote blockquote{font-family:'Cormorant Garamond',serif;font-weight:400;font-style:italic;font-size:clamp(1.6rem,3vw,2.6rem);line-height:1.3;letter-spacing:-.02em;max-width:720px;margin:0 auto;color:var(--ivory)}
+.divider-quote blockquote em{font-weight:600;font-style:italic;color:var(--gold)}
+
+/* ═══ UTILITY ═══ */
+.utility-intro{max-width:600px;margin-bottom:72px}
+.utility-intro h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(2rem,3.5vw,3rem);line-height:1.12;letter-spacing:-.02em;margin-bottom:20px}
+.utility-intro h2 em{font-style:italic;font-weight:500;color:var(--gold)}
+.utility-intro p{color:var(--stone);line-height:1.85;font-size:.92rem;font-weight:300}
+
+.utility-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:1200px}
+.u-card{
+  padding:44px 36px;background:var(--bg2);border:1px solid var(--border);
+  transition:all .5s cubic-bezier(.22,1,.36,1);position:relative;display:flex;flex-direction:column;
+}
+.u-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.u-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,.2)}
+.u-card:hover::after{transform:scaleX(1)}
+
+.u-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.u-num{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2.5rem;line-height:1;color:var(--earth);transition:color .4s}
+.u-card:hover .u-num{color:var(--gold)}
+.u-tag{font-family:'IBM Plex Mono',monospace;font-size:.42rem;letter-spacing:.2em;text-transform:uppercase;color:var(--earth);padding:4px 10px;border:1px solid var(--border);transition:all .4s}
+.u-card:hover .u-tag{border-color:rgba(196,165,123,.2);color:var(--gold)}
+
+.u-card h3{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.4rem;letter-spacing:-.01em;margin-bottom:14px}
+.u-card p{color:var(--stone);font-size:.84rem;line-height:1.75;font-weight:300;flex:1}
+.u-card .u-note{margin-top:auto;padding-top:14px;border-top:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:.52rem;line-height:1.6;color:var(--stone);opacity:.4;transition:opacity .4s;letter-spacing:.02em}
+.u-card:hover .u-note{opacity:.8}
+
+/* ═══ BURROW FUND ═══ */
+.burrow{padding:180px 60px;position:relative;background:var(--bg2)}
+.burrow::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,var(--bg),var(--bg2) 15%,var(--bg2) 85%,var(--bg));pointer-events:none}
+
+.burrow-inner{position:relative;z-index:1}
+.burrow-head{text-align:center;max-width:620px;margin:0 auto 80px}
+.burrow-head h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.12;letter-spacing:-.02em;margin-bottom:24px}
+.burrow-head h2 em{font-style:italic;font-weight:500;color:var(--gold)}
+.burrow-head p{color:var(--stone);line-height:1.85;font-size:.92rem;font-weight:300}
+
+.burrow-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;max-width:1100px;margin:0 auto}
+
+.burrow-left .about-quote{border-left-color:var(--gold)}
+.burrow-left p{color:var(--stone);line-height:1.85;font-size:.88rem;font-weight:300;margin-bottom:14px}
+.burrow-cta{
+  display:inline-flex;margin-top:28px;
+  font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;
+  padding:16px 36px;background:transparent;color:var(--gold);border:1px solid rgba(196,165,123,.3);
+  transition:all .4s cubic-bezier(.22,1,.36,1);
+}
+.burrow-cta:hover{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+
+.burrow-right .b-category{display:grid;grid-template-columns:44px 1fr;gap:18px;padding:22px 0;border-bottom:1px solid var(--border);transition:all .3s;align-items:start}
+.burrow-right .b-category:first-child{border-top:1px solid var(--border)}
+.burrow-right .b-category:hover{padding-left:8px}
+.b-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(196,165,123,.05);border:1px solid rgba(196,165,123,.1);margin-top:2px}
+.b-icon svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.b-category h4{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.05rem;margin-bottom:3px}
+.b-category p{font-size:.76rem;color:var(--stone);line-height:1.5;font-weight:300}
+
+.burrow-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin-top:48px;overflow:hidden}
+.b-stat{background:var(--bg2);padding:20px 18px}
+.b-stat-label{font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.2em;text-transform:uppercase;color:var(--earth);margin-bottom:5px}
+.b-stat-value{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.1rem}
+.b-stat-value .gold{color:var(--gold)}
+
+/* ═══ TOKENOMICS ═══ */
+.tok-layout{display:grid;grid-template-columns:1fr 1fr;gap:100px;max-width:1200px;align-items:center;margin-bottom:64px}
+.tok-number{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(8rem,18vw,14rem);line-height:.78;letter-spacing:-.05em;color:var(--ivory)}
+.tok-number span{font-weight:400;font-style:italic}
+.tok-caption{font-family:'IBM Plex Mono',monospace;font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--earth);margin-top:16px}
+.tok-bar{height:4px;width:100%;background:var(--dim);margin-top:36px;position:relative;overflow:hidden;border-radius:2px}
+.tok-bar-fill{height:100%;width:100%;background:var(--gold);border-radius:2px;position:relative}
+.tok-bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);animation:shimmer 4s ease-in-out infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.tok-bar-labels{display:flex;justify-content:space-between;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:.48rem;color:var(--earth);letter-spacing:.05em}
+
+.tok-right h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(2rem,3vw,2.6rem);line-height:1.15;letter-spacing:-.02em;margin-bottom:24px}
+.tok-right h2 em{font-style:italic;font-weight:500;color:var(--gold)}
+.tok-right p{color:var(--stone);font-size:.9rem;line-height:1.85;font-weight:300}
+
+.tok-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);overflow:hidden;margin-bottom:52px}
+.tok-cell{background:var(--bg);padding:28px 24px}
+.tok-cell-label{font-family:'IBM Plex Mono',monospace;font-size:.42rem;letter-spacing:.2em;text-transform:uppercase;color:var(--earth);margin-bottom:6px}
+.tok-cell-value{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.25rem}
+.tok-cell-value .gold{color:var(--gold)}
+
+.mech-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1200px}
+.mech-card{padding:40px 32px;background:var(--bg2);border:1px solid var(--border);transition:all .4s cubic-bezier(.22,1,.36,1);position:relative}
+.mech-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.mech-card:hover{border-color:var(--border2);transform:translateY(-2px)}.mech-card:hover::after{transform:scaleX(1)}
+.mech-num{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:3rem;color:var(--earth);margin-bottom:16px;transition:color .4s}
+.mech-card:hover .mech-num{color:var(--gold)}
+.mech-card h3{font-weight:500;font-size:.95rem;margin-bottom:12px;letter-spacing:-.01em}
+.mech-card p{color:var(--stone);font-size:.82rem;line-height:1.75;font-weight:300}
+
+/* ═══ ROADMAP ═══ */
+.rm-list{max-width:900px}
+.rm-item{display:grid;grid-template-columns:140px 1fr;gap:48px;padding:40px 0;border-bottom:1px solid var(--border);transition:all .3s}
+.rm-item:hover{padding-left:10px}
+.rm-phase{font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.2em;text-transform:uppercase;color:var(--earth);padding-top:6px}
+.rm-item.active .rm-phase{color:var(--gold)}
+.rm-body h3{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.4rem;margin-bottom:10px;letter-spacing:-.01em}
+.rm-body p{color:var(--stone);font-size:.85rem;line-height:1.75;font-weight:300}
+.rm-badge{display:inline-block;margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:.42rem;letter-spacing:.15em;text-transform:uppercase;padding:5px 14px;border:1px solid rgba(196,165,123,.2);color:var(--gold)}
+
+/* ═══ BUY ═══ */
+.buy-content{max-width:640px}
+.buy-content h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(2rem,3.5vw,3rem);line-height:1.12;letter-spacing:-.02em;margin-bottom:12px}
+.buy-content h2 em{font-style:italic;font-weight:500;color:var(--gold)}
+.buy-steps{counter-reset:step;margin:40px 0 48px}
+.buy-step{counter-increment:step;display:flex;gap:24px;align-items:baseline;padding:24px 0;border-bottom:1px solid var(--border);transition:all .3s}
+.buy-step:hover{padding-left:8px}
+.buy-step::before{content:counter(step,decimal-leading-zero);font-family:'IBM Plex Mono',monospace;font-size:.56rem;color:var(--gold);letter-spacing:.05em;flex-shrink:0}
+.buy-step p{color:var(--stone);font-size:.92rem;line-height:1.75;font-weight:300}
+.buy-step strong{color:var(--ivory);font-weight:500}
+
+/* ═══ COMMUNITY ═══ */
+.comm-center{text-align:center;max-width:560px;margin:0 auto}
+.comm-mark{margin-bottom:32px}
+.comm-mark svg{width:56px;height:72px;opacity:.5;animation:gentle-bob 5s ease-in-out infinite}
+@keyframes gentle-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.comm-center h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(2rem,3.5vw,3rem);line-height:1.12;letter-spacing:-.02em;margin-bottom:16px}
+.comm-center h2 em{font-style:italic;font-weight:500;color:var(--gold)}
+.comm-center>p{color:var(--stone);line-height:1.75;margin-bottom:44px;font-weight:300;font-size:.92rem}
+.comm-links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.comm-btn{font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:14px 28px;border:1px solid var(--earth);color:var(--ivory);transition:all .4s cubic-bezier(.22,1,.36,1)}
+.comm-btn:hover{border-color:var(--stone);transform:translateY(-2px)}
+.comm-btn.primary{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.comm-btn.primary:hover{box-shadow:0 8px 28px rgba(196,165,123,.12);transform:translateY(-2px)}
+
+/* ═══ FOOTER ═══ */
+footer{padding:52px 60px 40px;border-top:1px solid var(--border)}
+.f-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:36px;flex-wrap:wrap;gap:20px}
+.f-brand{display:flex;align-items:center;gap:10px}
+.f-brand svg{width:18px;height:24px;opacity:.5}
+.f-brand span{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--earth)}
+.f-nav{display:flex;gap:24px}
+.f-nav a{font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;color:var(--earth);transition:color .3s}
+.f-nav a:hover{color:var(--gold)}
+.f-legal{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:var(--dim);line-height:2;letter-spacing:.02em;max-width:100%;padding-top:24px;border-top:1px solid var(--border)}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:960px){
+  nav{padding:20px 28px}
+  nav.scrolled{padding:14px 28px}
+  .n-links a:not(.n-cta){display:none}
+  .hero{padding:0 28px}
+  .hero-mark{display:none}
+  .section,.burrow{padding:100px 28px}
+  .divider-quote{padding:80px 28px}
+  .about-layout,.tok-layout,.burrow-layout{grid-template-columns:1fr;gap:48px}
+  .utility-grid,.mech-row,.tok-grid{grid-template-columns:1fr}
+  .rm-item{grid-template-columns:1fr;gap:6px}
+  .burrow-stats{grid-template-columns:1fr 1fr}
+  footer{padding:32px 28px}
+}
+@media(max-width:480px){
+  .burrow-stats{grid-template-columns:1fr}
+  .hero h1{font-size:clamp(2.8rem,12vw,4rem)}
+}
+</style>
+</head>
+<body>
+<div class="cursor-ring" id="cRing"></div>
+<div class="cursor-dot" id="cDot"></div>
+<div id="prog"></div>
+<div class="grain"></div>
+
+<!-- RABBIT SVG DEFS -->
+<svg style="position:absolute;width:0;height:0" aria-hidden="true">
+<defs>
+  <symbol id="rabbit" viewBox="0 0 200 260">
+    <path d="M68 115 C62 52, 48 6, 58 2 C70-4, 84 8, 90 22 C98 42, 96 82, 92 115" fill="currentColor" opacity=".85"/>
+    <path d="M72 105 C70 56, 60 18, 66 10 C74 2, 82 14, 86 28 C90 46, 88 78, 86 105" fill="none" stroke="currentColor" stroke-width=".5" opacity=".15"/>
+    <path d="M120 110 C118 44, 126 0, 138-2 C150-4, 152 14, 148 30 C142 54, 132 84, 126 110" fill="currentColor" opacity=".85"/>
+    <path d="M124 100 C122 50, 130 10, 136 4 C144-2, 146 18, 144 30 C140 48, 132 76, 128 100" fill="none" stroke="currentColor" stroke-width=".5" opacity=".15"/>
+    <ellipse cx="100" cy="178" rx="76" ry="72" fill="currentColor" opacity=".9"/>
+    <ellipse cx="100" cy="183" rx="64" ry="60" fill="#0e0e0d" opacity=".92"/>
+    <ellipse cx="78" cy="172" rx="12" ry="14" fill="currentColor" opacity=".7"/>
+    <ellipse cx="78" cy="172" rx="8" ry="10" fill="#0e0e0d"/>
+    <ellipse cx="76" cy="168" rx="3" ry="4" fill="currentColor" opacity=".8"/>
+    <circle cx="82" cy="164" r="1.5" fill="currentColor" opacity=".3"/>
+    <ellipse cx="126" cy="170" rx="12" ry="14" fill="currentColor" opacity=".7"/>
+    <ellipse cx="126" cy="170" rx="8" ry="10" fill="#0e0e0d"/>
+    <ellipse cx="124" cy="166" rx="3" ry="4" fill="currentColor" opacity=".8"/>
+    <circle cx="130" cy="162" r="1.5" fill="currentColor" opacity=".3"/>
+    <ellipse cx="102" cy="196" rx="4.5" ry="3" fill="currentColor" opacity=".25"/>
+    <path d="M94 201 Q102 209 110 201" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round" opacity=".2"/>
+  </symbol>
+</defs>
+</svg>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="n-brand">
+    <svg viewBox="0 0 200 260" style="color:var(--gold)"><use href="#rabbit"/></svg>
+    <span>$rabbit</span>
+  </div>
+  <div class="n-links">
+    <a href="#about">About</a>
+    <a href="#utility">Utility</a>
+    <a href="#fund">Burrow Fund</a>
+    <a href="#tokenomics">Tokenomics</a>
+    <a href="https://dex.slvr.fun/" target="_blank" class="n-cta">Buy $RABBIT</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-mark">
+    <svg viewBox="0 0 200 260" style="color:var(--gold)"><use href="#rabbit"/></svg>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow"><span class="dot"></span> Live on MegaETH</div>
+    <h1>Down the<br><em>rabbithole.</em></h1>
+    <p class="hero-sub">The community token of MegaETH — the first real-time blockchain. Fair launched. Zero insiders. The meme that gives back.</p>
+    <div class="hero-actions">
+      <a href="https://dex.slvr.fun/" target="_blank" class="btn-primary">Buy on SLVR</a>
+      <a href="#fund" class="btn-ghost">The Burrow Fund</a>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker"><div class="ticker-track">
+  <span class="ticker-item"><span>&lt;1ms</span> latency</span><span class="ticker-item"><span>50k+</span> tps</span><span class="ticker-item"><span>100%</span> in lp</span><span class="ticker-item"><span>0%</span> tax</span><span class="ticker-item">locked lp</span><span class="ticker-item">the fluffle was first</span><span class="ticker-item">the meme that <span>gives back</span></span>
+  <span class="ticker-item"><span>&lt;1ms</span> latency</span><span class="ticker-item"><span>50k+</span> tps</span><span class="ticker-item"><span>100%</span> in lp</span><span class="ticker-item"><span>0%</span> tax</span><span class="ticker-item">locked lp</span><span class="ticker-item">the fluffle was first</span><span class="ticker-item">the meme that <span>gives back</span></span>
+</div></div>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="section-label"><span class="num">001</span> About</div>
+  <div class="about-layout">
+    <div class="about-text reveal">
+      <h2>The rabbit was always <em>MegaETH's.</em></h2>
+      <p>MegaETH raised $30 million through "The Fluffle" — 10,000 soulbound rabbit avatars. They named their ecosystem frontend "The Rabbithole." The rabbit was their brand before $RABBIT existed.</p>
+      <div class="about-quote"><p>We didn't invent a mascot. We inherited one. That's the difference between a random meme and a cultural inevitability.</p></div>
+      <p>$RABBIT is the community extension of a story MegaETH already wrote. Fair launched on SLVR. 100% in the pool. The community showed up and decided to build around it.</p>
+    </div>
+    <div class="about-facts reveal">
+      <div class="fact-row"><div class="fact-label">Chain</div><div><div class="fact-value">MegaETH</div><div class="fact-note">Real-time L2. 10ms blocks. 50k+ TPS.</div></div></div>
+      <div class="fact-row"><div class="fact-label">Origin</div><div><div class="fact-value">The Fluffle</div><div class="fact-note">$30M raise via 10k soulbound rabbit avatars.</div></div></div>
+      <div class="fact-row"><div class="fact-label">Gateway</div><div><div class="fact-value">The Rabbithole</div><div class="fact-note">MegaETH's official ecosystem frontend.</div></div></div>
+      <div class="fact-row"><div class="fact-label">Launch</div><div><div class="fact-value fact-gold">Fair</div><div class="fact-note">100% into LP via SLVR. No presale. No team wallet.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<div class="divider-quote reveal">
+  <blockquote>MegaETH isn't optimizing for today's DeFi. It's building for applications <em>we haven't yet conceived.</em></blockquote>
+</div>
+
+<!-- UTILITY -->
+<section class="section" id="utility">
+  <div class="section-label"><span class="num">002</span> Utility</div>
+  <div class="utility-intro reveal">
+    <h2>Built for things that <em>only work</em> at this speed.</h2>
+    <p>10ms blocks unlock an entirely new design space. $RABBIT explores it with products that can't exist on any other chain.</p>
+  </div>
+  <div class="utility-grid">
+    <div class="u-card reveal" onclick="window.location.href='rabbitrun.html'" style="cursor:pointer">
+      <div class="u-head"><div class="u-num">01</div><div class="u-tag">On-chain PvP</div></div>
+      <h3>RabbitRun</h3>
+      <p>Real-time reaction game. Players stake $RABBIT. A random countdown triggers on-chain. First to react wins the pot. Rounds last seconds. Settlement is instant. Every game is a live speed demo for MegaETH — built for streaming, viral by design.</p>
+      <div class="u-note">Impossible on Ethereum or Solana. Block time too slow. → Launch app</div>
+    </div>
+    <div class="u-card reveal" onclick="window.location.href='radar.html'" style="cursor:pointer">
+      <div class="u-head"><div class="u-num">02</div><div class="u-tag">Alpha tool</div></div>
+      <h3>Rabbit Radar</h3>
+      <p>Live dashboard tracking every launch, deploy, and liquidity event across MegaETH. Holders get early signal on new projects and whale movements.</p>
+      <div class="u-note">50+ apps on a days-old chain. Curation is alpha. → Launch app</div>
+    </div>
+    <div class="u-card reveal" onclick="window.location.href='dao.html'" style="cursor:pointer">
+      <div class="u-head"><div class="u-num">03</div><div class="u-tag">Governance</div></div>
+      <h3>Colony DAO</h3>
+      <p>$RABBIT holders vote on which projects receive "Colony Approved" endorsement. Also governs the Burrow Fund allocations.</p>
+      <div class="u-note">The community that curates early wins. → Launch app</div>
+    </div>
+    <div class="u-card reveal" onclick="window.location.href='speedproof.html'" style="cursor:pointer">
+      <div class="u-head"><div class="u-num">04</div><div class="u-tag">Public good</div></div>
+      <h3>Speed Proof</h3>
+      <p>Benchmark dashboard powered by $RABBIT transactions. Verifiable on-chain proof that MegaETH delivers on its promises.</p>
+      <div class="u-note">Every $RABBIT tx is chain marketing. Symbiotic. → Launch app</div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<div class="divider-quote reveal">
+  <blockquote>Every meme token in crypto takes from its community. <em>What if one gave back?</em></blockquote>
+</div>
+
+<!-- BURROW FUND -->
+<section class="burrow" id="fund">
+  <div class="burrow-inner">
+    <div class="section-label"><span class="num">003</span> The Burrow Fund</div>
+    <div class="burrow-head reveal">
+      <h2>The meme that <em>gives back.</em></h2>
+      <p>A community treasury funded by voluntary $RABBIT donations. Colony DAO governs allocation. Every transaction on-chain. Every decision transparent.</p>
+    </div>
+    <div class="burrow-layout">
+      <div class="burrow-left reveal">
+        <div class="about-quote"><p>Most tokens extract value from their community. $RABBIT is designed to create value beyond it. That's not a marketing line — it's a treasury with a wallet address and a governance system.</p></div>
+        <p>Donate any amount. Colony DAO votes quarterly. Funds distributed on-chain to verified causes and projects. Everything visible. Everything auditable.</p>
+        <a href="#" class="burrow-cta">Donate to The Burrow Fund</a>
+      </div>
+      <div class="burrow-right reveal">
+        <div class="b-category">
+          <div class="b-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          <div><h4>Disaster & Emergency Relief</h4><p>Rapid response funding for global emergencies. Community votes on which crises receive support.</p></div>
+        </div>
+        <div class="b-category">
+          <div class="b-icon"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <div><h4>Open-Source Dev Grants</h4><p>Funding builders on MegaETH. Public goods and infrastructure for the ecosystem.</p></div>
+        </div>
+        <div class="b-category">
+          <div class="b-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+          <div><h4>Education & Access</h4><p>Scholarships, bootcamps, and crypto literacy. Making the rabbithole accessible.</p></div>
+        </div>
+        <div class="b-category">
+          <div class="b-icon"><svg viewBox="0 0 24 24"><path d="M12 22c4-4 8-7 8-12a8 8 0 1 0-16 0c0 5 4 8 8 12z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div><h4>Environmental & Wildlife</h4><p>Conservation funding including rabbit habitat preservation and broader environmental initiatives.</p></div>
+        </div>
+        <div class="burrow-stats">
+          <div class="b-stat"><div class="b-stat-label">Treasury</div><div class="b-stat-value"><span class="gold">On-chain</span></div></div>
+          <div class="b-stat"><div class="b-stat-label">Governance</div><div class="b-stat-value">Colony DAO</div></div>
+          <div class="b-stat"><div class="b-stat-label">Donations</div><div class="b-stat-value"><span class="gold">Voluntary</span></div></div>
+          <div class="b-stat"><div class="b-stat-label">Cycle</div><div class="b-stat-value">Quarterly</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOKENOMICS -->
+<section class="section" id="tokenomics">
+  <div class="section-label"><span class="num">004</span> Tokenomics & Launch</div>
+  <div class="tok-layout reveal">
+    <div>
+      <div class="tok-number">100<span>%</span></div>
+      <div class="tok-caption">of supply in the liquidity pool</div>
+      <div class="tok-bar"><div class="tok-bar-fill"></div></div>
+      <div class="tok-bar-labels"><span>V3 Liquidity Pool</span><span>100,000,000 $RABBIT</span></div>
+    </div>
+    <div class="tok-right">
+      <h2>No pie charts. No insider wallets. <em>Just the pool.</em></h2>
+      <p>SLVR puts 100% of tokens into the V3 LP at deployment. No team allocation. No vesting. No marketing wallet. Revenue comes from the 50/50 fee split on swaps.</p>
+    </div>
+  </div>
+  <div class="tok-grid reveal">
+    <div class="tok-cell"><div class="tok-cell-label">Supply</div><div class="tok-cell-value">100,000,000</div></div>
+    <div class="tok-cell"><div class="tok-cell-label">In LP</div><div class="tok-cell-value"><span class="gold">100%</span></div></div>
+    <div class="tok-cell"><div class="tok-cell-label">Tax</div><div class="tok-cell-value">0%</div></div>
+    <div class="tok-cell"><div class="tok-cell-label">Fee Split</div><div class="tok-cell-value">50 / 50</div></div>
+    <div class="tok-cell"><div class="tok-cell-label">Team Alloc</div><div class="tok-cell-value">None</div></div>
+    <div class="tok-cell"><div class="tok-cell-label">LP Status</div><div class="tok-cell-value"><span class="gold">Locked</span></div></div>
+  </div>
+  <div class="mech-row reveal">
+    <div class="mech-card"><div class="mech-num">01</div><h3>Fair launch via SLVR</h3><p>Full 100M supply into a Uniswap V3 pool against WETH on MegaETH. Single-sided liquidity. Bonding curve from block one.</p></div>
+    <div class="mech-card"><div class="mech-num">02</div><h3>LP locked on-chain</h3><p>Liquidity position locked by the SLVR smart contract. Nobody can pull it. Enforced by code.</p></div>
+    <div class="mech-card"><div class="mech-num">03</div><h3>Revenue from volume</h3><p>Every swap generates V3 fees — 50% to SLVR, 50% to deployer. Your bags aren't someone else's exit.</p></div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="section" id="roadmap">
+  <div class="section-label"><span class="num">005</span> Roadmap</div>
+  <div class="rm-list">
+    <div class="rm-item active reveal"><div class="rm-phase">Phase 01</div><div class="rm-body"><h3>The Burrow</h3><p>Fair launch on SLVR. Community formation. Burrow Fund treasury deployed. Establishing $RABBIT as the cultural token of MegaETH.</p><span class="rm-badge">Now</span></div></div>
+    <div class="rm-item reveal"><div class="rm-phase">Phase 02</div><div class="rm-body"><h3>The Warren</h3><p>RabbitRun game MVP. Rabbit Radar alpha. Colony DAO formation. First Burrow Fund allocation vote.</p></div></div>
+    <div class="rm-item reveal"><div class="rm-phase">Phase 03</div><div class="rm-body"><h3>The Meadow</h3><p>Full RabbitRun with leaderboards. Colony DAO governance live. Speed Proof dashboard. On-chain impact report.</p></div></div>
+    <div class="rm-item reveal"><div class="rm-phase">Phase 04</div><div class="rm-body"><h3>Wonderland</h3><p>Ecosystem expansion driven by Colony DAO. Burrow Fund scales with community. Phase 04 belongs to the holders.</p></div></div>
+  </div>
+</section>
+
+<!-- BUY -->
+<section class="section" id="buy">
+  <div class="section-label"><span class="num">006</span> How to buy</div>
+  <div class="buy-content reveal">
+    <h2>Three steps into <em>the rabbithole.</em></h2>
+    <div class="buy-steps">
+      <div class="buy-step"><p><strong>Set up a wallet</strong> — MetaMask or Rabby. Add MegaETH network. Bridge ETH via the official bridge.</p></div>
+      <div class="buy-step"><p><strong>Open SLVR</strong> — go to dex.slvr.fun, connect wallet. Find $RABBIT or paste the contract address.</p></div>
+      <div class="buy-step"><p><strong>Swap & hold</strong> — swap ETH for $RABBIT. You're in the colony. Donate to the Burrow Fund if you want.</p></div>
+    </div>
+    <a href="https://dex.slvr.fun/" target="_blank" class="btn-primary">Buy $RABBIT on SLVR</a>
+  </div>
+</section>
+
+<!-- COMMUNITY -->
+<section class="section">
+  <div class="section-label"><span class="num">007</span> Community</div>
+  <div class="comm-center reveal">
+    <div class="comm-mark">
+      <svg viewBox="0 0 200 260" style="color:var(--gold)"><use href="#rabbit"/></svg>
+    </div>
+    <h2>Join the <em>colony.</em></h2>
+    <p>The Fluffle started it. The Rabbithole is the gateway. The Burrow Fund is the mission. $RABBIT is the community.</p>
+    <div class="comm-links">
+      <a href="https://dex.slvr.fun/" target="_blank" class="comm-btn primary">Buy on SLVR</a>
+      <a href="#" class="comm-btn">Twitter</a>
+      <a href="#" class="comm-btn">Telegram</a>
+      <a href="#fund" class="comm-btn">Burrow Fund</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="f-row">
+    <div class="f-brand">
+      <svg viewBox="0 0 200 260" style="color:var(--gold)"><use href="#rabbit"/></svg>
+      <span>$rabbit</span>
+    </div>
+    <div class="f-nav">
+      <a href="https://dex.slvr.fun/" target="_blank">SLVR</a>
+      <a href="#">Twitter</a>
+      <a href="#">Telegram</a>
+      <a href="#fund">Burrow Fund</a>
+    </div>
+  </div>
+  <div class="f-legal">$RABBIT is a community token deployed on MegaETH via SLVR launchpad. No intrinsic value. No expectation of financial return. No formal team, company, or entity. No roadmap item is guaranteed. Utility features and The Burrow Fund are community goals, not guarantees. Donations to the Burrow Fund are voluntary and non-refundable. DYOR. Not financial advice. — 2026</div>
+</footer>
+
+<script>
+// Scroll: nav + progress
+const nav=document.getElementById('nav'),prog=document.getElementById('prog');
+window.addEventListener('scroll',()=>{
+  nav.classList.toggle('scrolled',scrollY>60);
+  prog.style.width=(scrollY/(document.documentElement.scrollHeight-innerHeight)*100)+'%';
+},{passive:true});
+
+// Reveal on scroll — simple opacity only
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}});
+},{threshold:.1,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// Custom cursor — dot follows mouse exactly, ring follows with easing
+const cRing=document.getElementById('cRing'),cDot=document.getElementById('cDot');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cDot.style.left=mx+'px';cDot.style.top=my+'px';
+  if(!cDot.classList.contains('visible')){cDot.classList.add('visible');cRing.classList.add('visible')}
+});
+document.addEventListener('mouseleave',()=>{cDot.classList.remove('visible');cRing.classList.remove('visible')});
+document.addEventListener('mouseenter',()=>{cDot.classList.add('visible');cRing.classList.add('visible')});
+document.addEventListener('mousedown',()=>{cRing.style.width='28px';cRing.style.height='28px';cRing.style.borderColor='var(--gold)'});
+document.addEventListener('mouseup',()=>{cRing.style.width='';cRing.style.height='';cRing.style.borderColor=''});
+
+// ring easing loop
+(function ringLoop(){
+  rx+=(mx-rx)*.075;ry+=(my-ry)*.075;
+  cRing.style.left=rx+'px';cRing.style.top=ry+'px';
+  requestAnimationFrame(ringLoop);
+})();
+
+// hover state on interactive elements
+document.querySelectorAll('a,button,.u-card,.fact-row,.mech-card,.rm-item,.buy-step,.b-category,.stake-opt,.comm-btn,.n-cta').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cRing.classList.add('hovering'));
+  el.addEventListener('mouseleave',()=>cRing.classList.remove('hovering'));
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colony DAO — $RABBIT Governance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Karla:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e0e0d;--bg2:#181716;--bg3:#211f1e;
+  --ivory:#f2efe8;--stone:#b5aea3;--earth:#8a8379;--dim:#3d3a35;
+  --gold:#d4ad6a;--sage:#8aad84;
+  --red:#c75c5c;--green:#6db86b;--blue:#6b9cc7;--purple:#a17dc7;
+  --warm:#e8a44a;
+  --border:rgba(242,239,232,.08);--border2:rgba(242,239,232,.16);
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ivory);font-family:'Karla',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;display:flex;flex-direction:column}
+::selection{background:var(--gold);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+
+.grain{position:fixed;inset:0;opacity:.018;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;z-index:10000}
+
+.app{flex:1;display:flex;flex-direction:column;width:100%;position:relative;z-index:1;overflow:hidden}
+
+/* ═══ TOP BAR ═══ */
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{width:20px;height:26px;color:var(--gold)}
+.brand-text{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--stone)}
+.brand-text .slash{color:var(--dim);margin:0 4px}
+.brand-text .app-name{color:var(--gold)}
+.top-r{display:flex;align-items:center;gap:16px}
+.back-link{font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--earth);cursor:pointer;transition:color .3s}
+.back-link:hover{color:var(--ivory)}
+.wallet-info{display:flex;align-items:center;gap:10px}
+.voting-power{font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.05em;color:var(--stone)}
+.voting-power span{color:var(--gold);font-weight:600}
+.wallet-btn{font-family:'IBM Plex Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 18px;border:1px solid rgba(109,184,107,.3);color:var(--green);background:none;transition:all .3s}
+
+/* ═══ MAIN LAYOUT ═══ */
+.layout{flex:1;display:grid;grid-template-columns:200px 1fr 320px;overflow:hidden}
+
+/* ═══ LEFT NAV ═══ */
+.left-nav{border-right:1px solid var(--border);padding:24px 0;display:flex;flex-direction:column;overflow-y:auto}
+.nav-section{padding:0 16px;margin-bottom:28px}
+.nav-title{font-family:'IBM Plex Mono',monospace;font-size:.4rem;letter-spacing:.25em;text-transform:uppercase;color:var(--earth);margin-bottom:10px;padding:0 8px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  font-size:.8rem;color:var(--stone);font-weight:400;cursor:pointer;transition:all .2s;border-radius:2px;
+}
+.nav-item:hover{background:var(--bg2);color:var(--ivory)}
+.nav-item.active{background:rgba(212,173,106,.06);color:var(--ivory)}
+.nav-item .nav-icon{font-size:.9rem;width:20px;text-align:center}
+.nav-item .nav-badge{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:.42rem;color:var(--gold);background:rgba(212,173,106,.08);padding:2px 7px;border-radius:2px}
+
+.nav-divider{height:1px;background:var(--border);margin:0 24px 28px}
+
+/* create proposal button */
+.create-btn{
+  margin:auto 16px 16px;padding:14px;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;
+  background:transparent;color:var(--gold);border:1px solid rgba(212,173,106,.25);transition:all .3s;
+}
+.create-btn:hover{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+
+/* ═══ MAIN CONTENT ═══ */
+.main{overflow-y:auto;display:flex;flex-direction:column}
+
+.main-header{position:sticky;top:0;z-index:10;background:var(--bg);padding:20px 32px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.main-title{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:1.4rem;letter-spacing:-.01em}
+.main-title em{font-style:italic;color:var(--gold)}
+.main-tabs{display:flex;gap:4px}
+.tab{font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;padding:7px 14px;color:var(--earth);background:none;border:1px solid transparent;transition:all .3s;cursor:pointer}
+.tab:hover{color:var(--ivory)}
+.tab.active{color:var(--gold);border-color:rgba(212,173,106,.2);background:rgba(212,173,106,.04)}
+
+.main-body{padding:24px 32px;flex:1}
+
+/* ═══ PROPOSAL CARDS ═══ */
+.proposal{
+  padding:28px 32px;background:var(--bg2);border:1px solid var(--border);margin-bottom:12px;
+  transition:all .4s cubic-bezier(.22,1,.36,1);position:relative;cursor:pointer;
+}
+.proposal::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.proposal:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.2)}
+.proposal:hover::after{transform:scaleX(1)}
+
+.p-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:16px}
+.p-id{font-family:'IBM Plex Mono',monospace;font-size:.44rem;letter-spacing:.1em;color:var(--earth)}
+.p-status{font-family:'IBM Plex Mono',monospace;font-size:.38rem;letter-spacing:.15em;text-transform:uppercase;padding:4px 10px;border-radius:2px}
+.p-status.active{color:var(--green);border:1px solid rgba(109,184,107,.2);background:rgba(109,184,107,.04)}
+.p-status.passed{color:var(--gold);border:1px solid rgba(212,173,106,.2);background:rgba(212,173,106,.04)}
+.p-status.failed{color:var(--red);border:1px solid rgba(199,92,92,.2);background:rgba(199,92,92,.04)}
+.p-status.pending{color:var(--stone);border:1px solid var(--border2)}
+
+.p-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.25rem;letter-spacing:-.01em;margin-bottom:8px;line-height:1.3}
+.p-desc{font-size:.82rem;color:var(--stone);line-height:1.7;font-weight:300;margin-bottom:20px;max-width:640px}
+
+/* category badge */
+.p-cat{display:inline-flex;align-items:center;gap:6px;margin-bottom:16px}
+.p-cat-badge{font-family:'IBM Plex Mono',monospace;font-size:.38rem;letter-spacing:.15em;text-transform:uppercase;padding:3px 9px;border-radius:2px}
+.p-cat-badge.curation{color:var(--purple);border:1px solid rgba(161,125,199,.2)}
+.p-cat-badge.burrow{color:var(--warm);border:1px solid rgba(232,164,74,.2)}
+.p-cat-badge.protocol{color:var(--blue);border:1px solid rgba(107,156,199,.2)}
+
+/* vote bars */
+.vote-bars{margin-bottom:16px}
+.vote-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.vote-label{font-family:'IBM Plex Mono',monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;width:56px;color:var(--earth);text-align:right}
+.vote-track{flex:1;height:6px;background:var(--dim);border-radius:3px;overflow:hidden;position:relative}
+.vote-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.vote-fill.for{background:var(--green)}
+.vote-fill.against{background:var(--red)}
+.vote-fill.abstain{background:var(--earth)}
+.vote-pct{font-family:'IBM Plex Mono',monospace;font-size:.48rem;color:var(--stone);width:36px;text-align:right}
+
+.p-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.p-meta{display:flex;gap:20px}
+.p-meta-item{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:var(--earth);letter-spacing:.05em}
+.p-meta-item span{color:var(--stone)}
+
+/* vote buttons */
+.vote-actions{display:flex;gap:6px}
+.vote-btn{
+  font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:8px 18px;background:none;border:1px solid var(--border);color:var(--stone);transition:all .3s;
+}
+.vote-btn:hover{transform:translateY(-1px)}
+.vote-btn.for:hover{border-color:var(--green);color:var(--green);background:rgba(109,184,107,.04)}
+.vote-btn.against:hover{border-color:var(--red);color:var(--red);background:rgba(199,92,92,.04)}
+.vote-btn.abstain:hover{border-color:var(--stone);color:var(--ivory)}
+.vote-btn.voted{opacity:.5;pointer-events:none}
+.vote-btn.voted.selected{opacity:1;font-weight:600}
+.vote-btn.voted.selected.for{border-color:var(--green);color:var(--green);background:rgba(109,184,107,.06)}
+.vote-btn.voted.selected.against{border-color:var(--red);color:var(--red);background:rgba(199,92,92,.06)}
+
+/* ═══ BURROW ALLOCATION VIEW ═══ */
+.alloc-card{padding:28px 32px;background:var(--bg2);border:1px solid var(--border);margin-bottom:12px}
+.alloc-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem;margin-bottom:6px}
+.alloc-sub{font-size:.78rem;color:var(--stone);font-weight:300;margin-bottom:20px;line-height:1.6}
+.alloc-bars{display:flex;flex-direction:column;gap:14px}
+.alloc-row{display:flex;align-items:center;gap:14px}
+.alloc-icon{font-size:1rem;width:24px;text-align:center}
+.alloc-name{font-size:.82rem;font-weight:500;width:160px}
+.alloc-track{flex:1;height:8px;background:var(--dim);border-radius:4px;overflow:hidden;position:relative}
+.alloc-fill{height:100%;border-radius:4px;background:var(--warm);transition:width .8s cubic-bezier(.22,1,.36,1)}
+.alloc-pct{font-family:'IBM Plex Mono',monospace;font-size:.52rem;color:var(--warm);width:36px;text-align:right;font-weight:500}
+.alloc-slider{flex:1;-webkit-appearance:none;height:8px;background:var(--dim);border-radius:4px;outline:none;cursor:pointer}
+.alloc-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--warm);border:2px solid var(--bg2);cursor:pointer}
+.alloc-total{font-family:'IBM Plex Mono',monospace;font-size:.5rem;color:var(--earth);text-align:right;margin-top:12px;letter-spacing:.05em}
+.alloc-total span{color:var(--warm);font-weight:600}
+.alloc-submit{
+  margin-top:16px;padding:14px 32px;width:100%;
+  font-family:'IBM Plex Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;
+  background:transparent;color:var(--warm);border:1px solid rgba(232,164,74,.3);transition:all .3s;
+}
+.alloc-submit:hover{background:var(--warm);color:var(--bg);border-color:var(--warm)}
+
+/* ═══ RIGHT PANEL ═══ */
+.panel{border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.panel-section{padding:20px 24px;border-bottom:1px solid var(--border)}
+.panel-title{font-family:'IBM Plex Mono',monospace;font-size:.42rem;letter-spacing:.25em;text-transform:uppercase;color:var(--earth);margin-bottom:16px}
+
+/* treasury */
+.treasury-amount{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2.8rem;line-height:1;letter-spacing:-.03em;margin-bottom:4px}
+.treasury-amount span{color:var(--warm);font-weight:500}
+.treasury-usd{font-family:'IBM Plex Mono',monospace;font-size:.52rem;color:var(--earth);letter-spacing:.05em;margin-bottom:20px}
+.treasury-breakdown{display:flex;flex-direction:column;gap:0}
+.tb-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.tb-row:first-child{border-top:1px solid var(--border)}
+.tb-label{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--stone)}
+.tb-dot{width:8px;height:8px;border-radius:50%}
+.tb-value{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1rem}
+.tb-pct{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:var(--earth);margin-left:8px}
+
+/* dao stats */
+.dao-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);overflow:hidden}
+.ds{background:var(--bg);padding:14px 12px}
+.ds-k{font-family:'IBM Plex Mono',monospace;font-size:.38rem;letter-spacing:.2em;text-transform:uppercase;color:var(--earth);margin-bottom:4px}
+.ds-v{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.1rem}
+.ds-v .gold{color:var(--gold)}
+
+/* top delegates */
+.delegate{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.delegate:last-child{border-bottom:none}
+.del-rank{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.2rem;color:var(--dim);width:20px;text-align:center}
+.delegate:nth-child(-n+3) .del-rank{color:var(--gold)}
+.del-info{flex:1;min-width:0}
+.del-addr{font-family:'IBM Plex Mono',monospace;font-size:.54rem;color:var(--stone);letter-spacing:.02em}
+.del-name{font-size:.78rem;font-weight:500;margin-bottom:1px}
+.del-power{text-align:right}
+.del-votes{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:.95rem}
+.del-pct{font-family:'IBM Plex Mono',monospace;font-size:.42rem;color:var(--earth)}
+
+/* recent activity */
+.activity{display:flex;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.act-icon{font-size:.8rem;flex-shrink:0}
+.act-text{font-size:.74rem;color:var(--stone);line-height:1.5;font-weight:300}
+.act-text strong{color:var(--ivory);font-weight:500}
+.act-text .gold{color:var(--gold)}
+.act-time{font-family:'IBM Plex Mono',monospace;font-size:.4rem;color:var(--earth);flex-shrink:0;margin-left:auto}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:1100px){
+  .layout{grid-template-columns:1fr 300px}
+  .left-nav{display:none}
+}
+@media(max-width:760px){
+  .layout{grid-template-columns:1fr}
+  .panel{display:none}
+  .top{padding:12px 16px}
+  .main-header{padding:16px 20px}
+  .main-body{padding:16px 20px}
+  .proposal{padding:20px 22px}
+}
+.app-nav{display:flex;gap:4px;align-items:center}.app-nav a{font-family:"IBM Plex Mono",monospace;font-size:.44rem;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;color:var(--earth);border:1px solid transparent;transition:all .3s}.app-nav a:hover{color:var(--ivory);border-color:var(--border)}.app-nav a.current{color:var(--gold);border-color:rgba(212,173,106,.2)}.app-nav .sep{color:var(--dim);font-size:.5rem}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="app">
+  <div class="top">
+    <div class="brand">
+      <svg viewBox="0 0 200 260" fill="currentColor"><path d="M68 115 C62 52, 48 6, 58 2 C70-4, 84 8, 90 22 C98 42, 96 82, 92 115" opacity=".85"/><path d="M120 110 C118 44, 126 0, 138-2 C150-4, 152 14, 148 30 C142 54, 132 84, 126 110" opacity=".85"/><ellipse cx="100" cy="178" rx="76" ry="72" opacity=".9"/><ellipse cx="100" cy="183" rx="64" ry="60" fill="#0e0e0d" opacity=".92"/><ellipse cx="78" cy="172" rx="8" ry="10" fill="#0e0e0d"/><ellipse cx="76" cy="168" rx="3" ry="4" opacity=".8"/><ellipse cx="126" cy="170" rx="8" ry="10" fill="#0e0e0d"/><ellipse cx="124" cy="166" rx="3" ry="4" opacity=".8"/></svg>
+      <div class="brand-text">$rabbit <span class="slash">/</span> <span class="app-name">colony dao</span></div>
+    </div>
+    <div class="top-r">
+      <div class="app-nav"><a href="index.html">← Site</a><span class="sep">·</span><a href="rabbitrun.html">Run</a><a href="radar.html">Radar</a><a href="dao.html" class="current">DAO</a><a href="speedproof.html">Speed</a></div>
+      <div class="wallet-info">
+        <div class="voting-power">Voting power: <span>12,400 $RABBIT</span></div>
+        <button class="wallet-btn">0x7a3f...e82d</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- LEFT NAV -->
+    <div class="left-nav">
+      <div class="nav-section">
+        <div class="nav-title">Governance</div>
+        <div class="nav-item active" onclick="showView('proposals')"><span class="nav-icon">🗳</span> Proposals <span class="nav-badge">3</span></div>
+        <div class="nav-item" onclick="showView('allocation')"><span class="nav-icon">🌍</span> Burrow Fund</div>
+        <div class="nav-item" onclick="showView('proposals')"><span class="nav-icon">✅</span> Colony Approved</div>
+        <div class="nav-item" onclick="showView('proposals')"><span class="nav-icon">📋</span> Past Votes</div>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-section">
+        <div class="nav-title">Community</div>
+        <div class="nav-item" onclick="showView('proposals')"><span class="nav-icon">👥</span> Delegates</div>
+        <div class="nav-item" onclick="showView('proposals')"><span class="nav-icon">📊</span> Analytics</div>
+        <div class="nav-item" onclick="showView('proposals')"><span class="nav-icon">📖</span> Forum</div>
+      </div>
+      <button class="create-btn" onclick="showView('proposals')">+ New Proposal</button>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="main-header">
+        <div class="main-title" id="mainTitle">Active <em>Proposals</em></div>
+        <div class="main-tabs">
+          <button class="tab active" onclick="filterTab(this,'active')">Active</button>
+          <button class="tab" onclick="filterTab(this,'passed')">Passed</button>
+          <button class="tab" onclick="filterTab(this,'all')">All</button>
+        </div>
+      </div>
+      <div class="main-body" id="mainBody">
+        <!-- Content injected by JS -->
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel">
+      <div class="panel-section">
+        <div class="panel-title">Burrow Fund Treasury</div>
+        <div class="treasury-amount"><span>4.2M</span></div>
+        <div class="treasury-usd">≈ $1,764 USD · $RABBIT</div>
+        <div class="treasury-breakdown">
+          <div class="tb-row"><div class="tb-label"><div class="tb-dot" style="background:#c75c5c"></div> Disaster Relief</div><div><span class="tb-value">1.05M</span><span class="tb-pct">25%</span></div></div>
+          <div class="tb-row"><div class="tb-label"><div class="tb-dot" style="background:#6b9cc7"></div> Dev Grants</div><div><span class="tb-value">1.26M</span><span class="tb-pct">30%</span></div></div>
+          <div class="tb-row"><div class="tb-label"><div class="tb-dot" style="background:#a17dc7"></div> Education</div><div><span class="tb-value">840K</span><span class="tb-pct">20%</span></div></div>
+          <div class="tb-row"><div class="tb-label"><div class="tb-dot" style="background:#8aad84"></div> Environmental</div><div><span class="tb-value">1.05M</span><span class="tb-pct">25%</span></div></div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">DAO Stats</div>
+        <div class="dao-stats">
+          <div class="ds"><div class="ds-k">Members</div><div class="ds-v"><span class="gold">847</span></div></div>
+          <div class="ds"><div class="ds-k">Proposals</div><div class="ds-v">12</div></div>
+          <div class="ds"><div class="ds-k">Participation</div><div class="ds-v"><span class="gold">68%</span></div></div>
+          <div class="ds"><div class="ds-k">Quorum</div><div class="ds-v">15%</div></div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">Top Delegates</div>
+        <div class="delegate"><div class="del-rank">1</div><div class="del-info"><div class="del-name">rabbitwhale.eth</div><div class="del-addr">0xd41c...9f1a</div></div><div class="del-power"><div class="del-votes">2.4M</div><div class="del-pct">4.8%</div></div></div>
+        <div class="delegate"><div class="del-rank">2</div><div class="del-info"><div class="del-name">colony_og</div><div class="del-addr">0x92b8...3c45</div></div><div class="del-power"><div class="del-votes">1.8M</div><div class="del-pct">3.6%</div></div></div>
+        <div class="delegate"><div class="del-rank">3</div><div class="del-info"><div class="del-name">speedrunner</div><div class="del-addr">0x7a3f...e82d</div></div><div class="del-power"><div class="del-votes">1.1M</div><div class="del-pct">2.2%</div></div></div>
+        <div class="delegate"><div class="del-rank">4</div><div class="del-info"><div class="del-name">0x1e5a...d738</div><div class="del-addr">0x1e5a...d738</div></div><div class="del-power"><div class="del-votes">890K</div><div class="del-pct">1.8%</div></div></div>
+        <div class="delegate"><div class="del-rank">5</div><div class="del-info"><div class="del-name">burrower</div><div class="del-addr">0xf83e...12ab</div></div><div class="del-power"><div class="del-votes">720K</div><div class="del-pct">1.4%</div></div></div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title">Recent Activity</div>
+        <div class="activity"><div class="act-icon">🗳</div><div class="act-text"><strong>rabbitwhale.eth</strong> voted <span class="gold">For</span> on CIP-7</div><div class="act-time">4m</div></div>
+        <div class="activity"><div class="act-icon">💰</div><div class="act-text"><strong>0xab42...7f3c</strong> donated <span class="gold">50K $RABBIT</span> to Burrow Fund</div><div class="act-time">18m</div></div>
+        <div class="activity"><div class="act-icon">📝</div><div class="act-text"><strong>colony_og</strong> created proposal <span class="gold">CIP-9</span></div><div class="act-time">1h</div></div>
+        <div class="activity"><div class="act-icon">👥</div><div class="act-text"><strong>0x3d91...c4e8</strong> delegated to <span class="gold">speedrunner</span></div><div class="act-time">2h</div></div>
+        <div class="activity"><div class="act-icon">✅</div><div class="act-text">Proposal <span class="gold">CIP-6</span> passed with 82% approval</div><div class="act-time">6h</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ PROPOSAL DATA ═══
+const proposals=[
+  {
+    id:'CIP-9',status:'active',cat:'burrow',catLabel:'Burrow Fund',
+    title:'Q1 2026 Burrow Fund Allocation — Disaster Relief Focus',
+    desc:'Allocate 40% of this quarter\'s Burrow Fund treasury to Turkey-Syria earthquake recovery, 25% to MegaETH dev grants, 20% to education programs, 15% to wildlife conservation. Total allocation: 1.8M $RABBIT.',
+    forPct:74,againstPct:18,abstainPct:8,
+    votes:412,quorum:true,ends:'2d 14h',author:'colony_og',
+    voted:false,votedChoice:null
+  },
+  {
+    id:'CIP-8',status:'active',cat:'curation',catLabel:'Colony Approved',
+    title:'Grant "Colony Approved" Status to MegaSwap DEX',
+    desc:'MegaSwap has been live for 3 weeks with $2.1M TVL, 0 security incidents, and open-source contracts. Proposing Colony Approved endorsement to signal community trust to new MegaETH users.',
+    forPct:89,againstPct:7,abstainPct:4,
+    votes:628,quorum:true,ends:'18h',author:'rabbitwhale.eth',
+    voted:false,votedChoice:null
+  },
+  {
+    id:'CIP-7',status:'active',cat:'protocol',catLabel:'Protocol',
+    title:'Reduce RabbitRun Protocol Fee from 2.5% to 2.0%',
+    desc:'With RabbitRun volume growing, reducing the protocol fee would attract more players while still generating meaningful Burrow Fund contributions. Projected impact: −12% fee revenue but +30% game volume.',
+    forPct:52,againstPct:41,abstainPct:7,
+    votes:384,quorum:true,ends:'4d 6h',author:'speedrunner',
+    voted:false,votedChoice:null
+  },
+  {
+    id:'CIP-6',status:'passed',cat:'curation',catLabel:'Colony Approved',
+    title:'Grant "Colony Approved" to MegaBridge',
+    desc:'MegaBridge is the primary asset bridge for MegaETH with $18M bridged in 2 weeks. Audit passed by Trail of Bits.',
+    forPct:82,againstPct:12,abstainPct:6,
+    votes:721,quorum:true,ends:'Ended',author:'colony_og',
+    voted:true,votedChoice:'for'
+  },
+  {
+    id:'CIP-5',status:'passed',cat:'burrow',catLabel:'Burrow Fund',
+    title:'Establish Initial Burrow Fund Categories & Allocation Framework',
+    desc:'Define the four core impact categories (Disaster Relief, Dev Grants, Education, Environmental) and set quarterly voting cadence for allocation decisions.',
+    forPct:94,againstPct:3,abstainPct:3,
+    votes:856,quorum:true,ends:'Ended',author:'rabbitwhale.eth',
+    voted:true,votedChoice:'for'
+  },
+  {
+    id:'CIP-4',status:'failed',cat:'protocol',catLabel:'Protocol',
+    title:'Add 10,000 $RABBIT Stake Tier to RabbitRun',
+    desc:'Proposed adding a high-roller tier. Community felt it was too risky for most players.',
+    forPct:34,againstPct:58,abstainPct:8,
+    votes:492,quorum:true,ends:'Ended',author:'0x1e5a...d738',
+    voted:true,votedChoice:'against'
+  }
+];
+
+let currentFilter='active';
+let currentView='proposals';
+
+function renderProposal(p){
+  const catColors={curation:'purple',burrow:'burrow',protocol:'blue'};
+  const isActive=p.status==='active';
+  return`
+    <div class="proposal">
+      <div class="p-top">
+        <div class="p-id">${p.id} · by ${p.author}</div>
+        <div class="p-status ${p.status}">${p.status==='active'?'● Active':p.status==='passed'?'✓ Passed':'✗ Failed'}</div>
+      </div>
+      <div class="p-cat"><span class="p-cat-badge ${catColors[p.cat]}">${p.catLabel}</span></div>
+      <div class="p-title">${p.title}</div>
+      <div class="p-desc">${p.desc}</div>
+      <div class="vote-bars">
+        <div class="vote-bar-row"><div class="vote-label">For</div><div class="vote-track"><div class="vote-fill for" style="width:${p.forPct}%"></div></div><div class="vote-pct">${p.forPct}%</div></div>
+        <div class="vote-bar-row"><div class="vote-label">Against</div><div class="vote-track"><div class="vote-fill against" style="width:${p.againstPct}%"></div></div><div class="vote-pct">${p.againstPct}%</div></div>
+        <div class="vote-bar-row"><div class="vote-label">Abstain</div><div class="vote-track"><div class="vote-fill abstain" style="width:${p.abstainPct}%"></div></div><div class="vote-pct">${p.abstainPct}%</div></div>
+      </div>
+      <div class="p-footer">
+        <div class="p-meta">
+          <div class="p-meta-item">Votes: <span>${p.votes.toLocaleString()}</span></div>
+          <div class="p-meta-item">Quorum: <span style="color:${p.quorum?'var(--green)':'var(--red)'}">● ${p.quorum?'Reached':'Not reached'}</span></div>
+          <div class="p-meta-item">${isActive?'Ends: <span>'+p.ends+'</span>':'<span>'+p.ends+'</span>'}</div>
+        </div>
+        ${isActive&&!p.voted?`
+          <div class="vote-actions">
+            <button class="vote-btn for" onclick="castVote('${p.id}','for',event)">For</button>
+            <button class="vote-btn against" onclick="castVote('${p.id}','against',event)">Against</button>
+            <button class="vote-btn abstain" onclick="castVote('${p.id}','abstain',event)">Abstain</button>
+          </div>
+        `:''}
+        ${p.voted?`<div style="font-family:IBM Plex Mono,monospace;font-size:.44rem;color:var(--gold);letter-spacing:.1em">✓ YOU VOTED ${p.votedChoice.toUpperCase()}</div>`:''}
+      </div>
+    </div>
+  `;
+}
+
+function renderAllocation(){
+  return`
+    <div class="alloc-card">
+      <div class="alloc-title">Q1 2026 Burrow Fund Allocation</div>
+      <div class="alloc-sub">Drag the sliders to set your preferred allocation. Your vote is weighted by your $RABBIT holdings. Current treasury: 4.2M $RABBIT.</div>
+      <div class="alloc-bars">
+        <div class="alloc-row"><div class="alloc-icon">🌍</div><div class="alloc-name">Disaster Relief</div><input type="range" class="alloc-slider" min="0" max="100" value="40" oninput="updateAlloc()"><div class="alloc-pct">40%</div></div>
+        <div class="alloc-row"><div class="alloc-icon">💻</div><div class="alloc-name">Dev Grants</div><input type="range" class="alloc-slider" min="0" max="100" value="25" oninput="updateAlloc()"><div class="alloc-pct">25%</div></div>
+        <div class="alloc-row"><div class="alloc-icon">📚</div><div class="alloc-name">Education</div><input type="range" class="alloc-slider" min="0" max="100" value="20" oninput="updateAlloc()"><div class="alloc-pct">20%</div></div>
+        <div class="alloc-row"><div class="alloc-icon">🌱</div><div class="alloc-name">Environmental</div><input type="range" class="alloc-slider" min="0" max="100" value="15" oninput="updateAlloc()"><div class="alloc-pct">15%</div></div>
+      </div>
+      <div class="alloc-total">Total: <span id="allocTotal">100%</span></div>
+      <button class="alloc-submit" id="allocSubmit" onclick="submitAlloc()">Submit Allocation Vote</button>
+    </div>
+    <div class="alloc-card" style="margin-top:24px">
+      <div class="alloc-title">Current Community Allocation (847 votes)</div>
+      <div class="alloc-sub">This reflects the weighted average of all Colony DAO member votes for Q1 2026.</div>
+      <div class="alloc-bars">
+        <div class="alloc-row"><div class="alloc-icon">🌍</div><div class="alloc-name">Disaster Relief</div><div class="alloc-track"><div class="alloc-fill" style="width:35%"></div></div><div class="alloc-pct">35%</div></div>
+        <div class="alloc-row"><div class="alloc-icon">💻</div><div class="alloc-name">Dev Grants</div><div class="alloc-track"><div class="alloc-fill" style="width:28%"></div></div><div class="alloc-pct">28%</div></div>
+        <div class="alloc-row"><div class="alloc-icon">📚</div><div class="alloc-name">Education</div><div class="alloc-track"><div class="alloc-fill" style="width:22%"></div></div><div class="alloc-pct">22%</div></div>
+        <div class="alloc-row"><div class="alloc-icon">🌱</div><div class="alloc-name">Environmental</div><div class="alloc-track"><div class="alloc-fill" style="width:15%"></div></div><div class="alloc-pct">15%</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function updateAlloc(){
+  const sliders=document.querySelectorAll('.alloc-slider');
+  const pcts=document.querySelectorAll('.alloc-card:first-child .alloc-pct');
+  let total=0;
+  sliders.forEach((s,i)=>{
+    const v=parseInt(s.value);
+    pcts[i].textContent=v+'%';
+    total+=v;
+  });
+  const totalEl=document.getElementById('allocTotal');
+  totalEl.textContent=total+'%';
+  totalEl.style.color=total===100?'var(--warm)':'var(--red)';
+  document.getElementById('allocSubmit').disabled=total!==100;
+  document.getElementById('allocSubmit').style.opacity=total===100?1:.4;
+}
+
+function submitAlloc(){
+  const btn=document.getElementById('allocSubmit');
+  btn.textContent='✓ Vote Submitted';
+  btn.style.background='var(--warm)';
+  btn.style.color='var(--bg)';
+  btn.style.borderColor='var(--warm)';
+  btn.disabled=true;
+}
+
+function showView(view){
+  currentView=view;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const body=document.getElementById('mainBody');
+  const title=document.getElementById('mainTitle');
+
+  if(view==='allocation'){
+    title.innerHTML='Burrow Fund <em>Allocation</em>';
+    body.innerHTML=renderAllocation();
+  } else {
+    title.innerHTML='Active <em>Proposals</em>';
+    renderProposals();
+  }
+}
+
+function renderProposals(){
+  const body=document.getElementById('mainBody');
+  const filtered=proposals.filter(p=>{
+    if(currentFilter==='active')return p.status==='active';
+    if(currentFilter==='passed')return p.status==='passed'||p.status==='failed';
+    return true;
+  });
+  body.innerHTML=filtered.map(renderProposal).join('');
+  // animate vote bars
+  setTimeout(()=>{document.querySelectorAll('.vote-fill').forEach(el=>{const w=el.style.width;el.style.width='0';requestAnimationFrame(()=>el.style.width=w)})},50);
+}
+
+function filterTab(el,filter){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter=filter;
+  renderProposals();
+}
+
+function castVote(id,choice,e){
+  e.stopPropagation();
+  const p=proposals.find(x=>x.id===id);
+  if(!p||p.voted)return;
+  p.voted=true;
+  p.votedChoice=choice;
+  p.votes+=1;
+  if(choice==='for')p.forPct=Math.min(99,p.forPct+1);
+  else if(choice==='against')p.againstPct=Math.min(99,p.againstPct+1);
+  renderProposals();
+}
+
+// Initial render
+renderProposals();
+</script>
+</body>
+</html>

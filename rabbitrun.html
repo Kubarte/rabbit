@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RabbitRun — $RABBIT on MegaETH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Karla:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e0e0d;--bg2:#181716;--bg3:#211f1e;
+  --ivory:#f2efe8;--stone:#b5aea3;--earth:#8a8379;--dim:#3d3a35;
+  --gold:#d4ad6a;--sage:#8aad84;
+  --red:#c75c5c;--green:#6db86b;
+  --border:rgba(242,239,232,.08);--border2:rgba(242,239,232,.16);
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ivory);font-family:'Karla',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;display:flex;flex-direction:column}
+::selection{background:var(--gold);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+
+/* grain */
+.grain{position:fixed;inset:0;opacity:.018;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;z-index:10000}
+
+/* layout */
+.app{flex:1;display:flex;flex-direction:column;max-width:1200px;width:100%;margin:0 auto;padding:0 40px;position:relative;z-index:1}
+
+/* nav */
+.top{display:flex;justify-content:space-between;align-items:center;padding:24px 0;border-bottom:1px solid var(--border);flex-shrink:0}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{width:20px;height:26px;color:var(--gold)}
+.brand span{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--stone)}
+.brand .slash{color:var(--dim);margin:0 4px}
+.brand .game-name{color:var(--gold)}
+.top-r{display:flex;align-items:center;gap:20px}
+.wallet-btn{font-family:'IBM Plex Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;padding:10px 22px;border:1px solid rgba(212,173,106,.3);color:var(--gold);background:none;cursor:pointer;transition:all .3s}
+.wallet-btn:hover{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.wallet-btn.connected{border-color:var(--green);color:var(--green)}
+.back-link{font-family:'IBM Plex Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--earth);transition:color .3s;cursor:pointer}
+.back-link:hover{color:var(--ivory)}
+
+/* main area */
+.main{flex:1;display:flex;gap:40px;padding:40px 0;overflow:hidden}
+.arena{flex:1;display:flex;flex-direction:column;position:relative}
+.sidebar{width:300px;flex-shrink:0;display:flex;flex-direction:column;gap:0;border-left:1px solid var(--border);padding-left:40px;overflow-y:auto}
+
+/* ARENA STATES */
+.arena-state{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s ease}
+.arena-state.active{opacity:1;pointer-events:auto}
+
+/* ═══ LOBBY ═══ */
+.lobby-title{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(2.4rem,5vw,4rem);line-height:1;letter-spacing:-.03em;margin-bottom:12px;text-align:center}
+.lobby-title em{font-style:italic;font-weight:500;color:var(--gold)}
+.lobby-sub{color:var(--stone);font-size:.9rem;font-weight:300;text-align:center;margin-bottom:48px;max-width:380px;line-height:1.7}
+
+.stake-group{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:360px}
+.stake-label{font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.25em;text-transform:uppercase;color:var(--earth)}
+.stake-options{display:flex;gap:8px;width:100%}
+.stake-opt{
+  flex:1;padding:18px 8px;text-align:center;background:var(--bg2);border:1px solid var(--border);
+  font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.2rem;color:var(--ivory);
+  cursor:pointer;transition:all .3s;
+}
+.stake-opt:hover{border-color:var(--border2);transform:translateY(-2px)}
+.stake-opt.selected{border-color:var(--gold);background:rgba(212,173,106,.06)}
+.stake-opt .unit{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:var(--earth);display:block;margin-top:4px;letter-spacing:.1em}
+
+.play-btn{
+  margin-top:16px;width:100%;padding:22px;
+  font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;
+  background:var(--gold);color:var(--bg);border:none;cursor:pointer;
+  transition:all .4s cubic-bezier(.22,1,.36,1);
+}
+.play-btn:hover{box-shadow:0 8px 32px rgba(212,173,106,.2);transform:translateY(-2px)}
+.play-btn:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ═══ MATCHING ═══ */
+.match-text{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--stone)}
+.match-dots{display:flex;gap:6px;margin-top:16px}
+.match-dot{width:6px;height:6px;border-radius:50%;background:var(--dim);animation:matchPulse 1.2s ease infinite}
+.match-dot:nth-child(2){animation-delay:.2s}.match-dot:nth-child(3){animation-delay:.4s}
+@keyframes matchPulse{0%,100%{background:var(--dim)}50%{background:var(--gold)}}
+
+/* ═══ COUNTDOWN — the tension phase ═══ */
+.cd-phase{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;user-select:none}
+.cd-ring-wrap{position:relative;width:280px;height:280px;margin-bottom:40px}
+.cd-ring{width:100%;height:100%;border-radius:50%;border:1px solid var(--dim);position:relative;display:flex;align-items:center;justify-content:center;transition:border-color .3s}
+.cd-ring-pulse{position:absolute;inset:-20px;border-radius:50%;border:1px solid rgba(212,173,106,.08);animation:ringPulse 1.6s ease-in-out infinite}
+@keyframes ringPulse{0%,100%{transform:scale(.9);opacity:0}50%{transform:scale(1);opacity:1}}
+
+.cd-word{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:4rem;letter-spacing:.04em;color:var(--stone);transition:all .3s}
+.cd-instruct{font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--earth);text-align:center}
+.cd-warn{color:var(--red);font-weight:500}
+
+/* heartbeat bar at bottom */
+.heartbeat{position:absolute;bottom:40px;left:0;right:0;height:2px;overflow:hidden;opacity:.3}
+.heartbeat-line{height:100%;width:40px;background:var(--gold);border-radius:1px;animation:heartbeat 1s ease-in-out infinite}
+@keyframes heartbeat{0%{transform:translateX(-40px);opacity:0}30%{opacity:1}50%{transform:translateX(50vw)}100%{transform:translateX(100vw);opacity:0}}
+
+/* ═══ GO! — the reaction phase ═══ */
+.go-phase{display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;width:100%;height:100%;user-select:none}
+.go-flash{position:absolute;inset:0;background:rgba(212,173,106,.04);pointer-events:none;animation:goFlash .6s ease-out forwards}
+@keyframes goFlash{0%{opacity:1}100%{opacity:0}}
+.go-word{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(6rem,14vw,10rem);line-height:1;color:var(--gold);animation:goAppear .15s ease-out;letter-spacing:-.02em}
+@keyframes goAppear{0%{transform:scale(1.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.go-tap{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:var(--stone);margin-top:20px;animation:goAppear .2s .1s ease-out both}
+
+/* ═══ RESULT ═══ */
+.result-phase{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.result-verdict{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:2rem;letter-spacing:-.01em;margin-bottom:8px}
+.result-verdict.win{color:var(--gold)}
+.result-verdict.lose{color:var(--red)}
+.result-verdict.false-start{color:var(--red)}
+.result-time{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(5rem,12vw,8rem);line-height:1;letter-spacing:-.04em;margin-bottom:4px}
+.result-time .ms{font-size:.35em;color:var(--stone);font-weight:400}
+.result-unit{font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--earth);margin-bottom:36px}
+
+.result-vs{
+  display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;
+  width:100%;max-width:400px;padding:28px 32px;
+  background:var(--bg2);border:1px solid var(--border);margin-bottom:32px;
+}
+.vs-player{text-align:center}
+.vs-label{font-family:'IBM Plex Mono',monospace;font-size:.42rem;letter-spacing:.2em;text-transform:uppercase;color:var(--earth);margin-bottom:6px}
+.vs-time{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.6rem;letter-spacing:-.02em}
+.vs-time.winner{color:var(--gold)}
+.vs-time.loser{color:var(--stone)}
+.vs-divider{font-family:'IBM Plex Mono',monospace;font-size:.5rem;color:var(--dim);letter-spacing:.1em}
+
+.result-payout{font-family:'IBM Plex Mono',monospace;font-size:.52rem;letter-spacing:.1em;color:var(--stone);margin-bottom:28px}
+.result-payout span{color:var(--gold);font-weight:600}
+
+.again-btn{
+  padding:18px 48px;
+  font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;
+  background:transparent;color:var(--gold);border:1px solid rgba(212,173,106,.3);cursor:pointer;
+  transition:all .4s;
+}
+.again-btn:hover{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+
+/* ═══ SIDEBAR ═══ */
+.sb-section{padding:24px 0;border-bottom:1px solid var(--border)}
+.sb-section:last-child{border-bottom:none}
+.sb-title{font-family:'IBM Plex Mono',monospace;font-size:.46rem;letter-spacing:.25em;text-transform:uppercase;color:var(--earth);margin-bottom:16px}
+
+/* live stats */
+.live-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);overflow:hidden;margin-bottom:0}
+.ls{background:var(--bg);padding:14px 12px}
+.ls-k{font-family:'IBM Plex Mono',monospace;font-size:.38rem;letter-spacing:.2em;text-transform:uppercase;color:var(--earth);margin-bottom:4px}
+.ls-v{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem;letter-spacing:-.01em}
+.ls-v .gold{color:var(--gold)}
+
+/* leaderboard */
+.lb-row{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.lb-rank{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1rem;color:var(--dim)}
+.lb-row:nth-child(-n+3) .lb-rank{color:var(--gold)}
+.lb-addr{font-family:'IBM Plex Mono',monospace;font-size:.52rem;color:var(--stone);letter-spacing:.02em}
+.lb-time{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:.95rem;color:var(--ivory)}
+.lb-time span{font-size:.7em;color:var(--earth)}
+
+/* match history */
+.mh-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.mh-result{font-family:'IBM Plex Mono',monospace;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.mh-result.w{color:var(--gold)}.mh-result.l{color:var(--red)}
+.mh-time{font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:500;color:var(--stone)}
+.mh-stake{font-family:'IBM Plex Mono',monospace;font-size:.44rem;color:var(--earth);letter-spacing:.05em}
+
+/* how it works */
+.how-step{display:flex;gap:12px;padding:10px 0;align-items:baseline}
+.how-num{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.4rem;color:var(--dim);flex-shrink:0;width:22px}
+.how-text{font-size:.78rem;color:var(--stone);line-height:1.6;font-weight:300}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:860px){
+  .app{padding:0 20px}
+  .sidebar{display:none}
+  .main{padding:20px 0}
+  .cd-ring-wrap{width:200px;height:200px}
+  .stake-options{flex-wrap:wrap}
+  .stake-opt{min-width:calc(50% - 4px)}
+}
+.app-nav{display:flex;gap:4px;align-items:center}.app-nav a{font-family:"IBM Plex Mono",monospace;font-size:.44rem;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;color:var(--earth);border:1px solid transparent;transition:all .3s}.app-nav a:hover{color:var(--ivory);border-color:var(--border)}.app-nav a.current{color:var(--gold);border-color:rgba(212,173,106,.2)}.app-nav .sep{color:var(--dim);font-size:.5rem}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="app">
+  <!-- TOP BAR -->
+  <div class="top">
+    <div class="brand">
+      <svg viewBox="0 0 200 260" fill="currentColor"><path d="M68 115 C62 52, 48 6, 58 2 C70-4, 84 8, 90 22 C98 42, 96 82, 92 115" opacity=".85"/><path d="M120 110 C118 44, 126 0, 138-2 C150-4, 152 14, 148 30 C142 54, 132 84, 126 110" opacity=".85"/><ellipse cx="100" cy="178" rx="76" ry="72" opacity=".9"/><ellipse cx="100" cy="183" rx="64" ry="60" fill="#0e0e0d" opacity=".92"/><ellipse cx="78" cy="172" rx="8" ry="10" fill="#0e0e0d"/><ellipse cx="76" cy="168" rx="3" ry="4" opacity=".8"/><ellipse cx="126" cy="170" rx="8" ry="10" fill="#0e0e0d"/><ellipse cx="124" cy="166" rx="3" ry="4" opacity=".8"/></svg>
+      <span>$rabbit <span class="slash">/</span> <span class="game-name">rabbitrun</span></span>
+    </div>
+    <div class="top-r">
+      <div class="app-nav"><a href="index.html">← Site</a><span class="sep">·</span><a href="rabbitrun.html" class="current">Run</a><a href="radar.html">Radar</a><a href="dao.html">DAO</a><a href="speedproof.html">Speed</a></div>
+      <button class="wallet-btn" id="walletBtn" onclick="connectWallet()">Connect Wallet</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- ARENA -->
+    <div class="arena" id="arena">
+
+      <!-- LOBBY STATE -->
+      <div class="arena-state active" id="lobby">
+        <h1 class="lobby-title"><em>Rabbit</em>Run</h1>
+        <p class="lobby-sub">Stake $RABBIT. Wait for the signal. React faster than your opponent. Winner takes the pot. Every round settles on-chain in milliseconds.</p>
+        <div class="stake-group">
+          <div class="stake-label">Choose your stake</div>
+          <div class="stake-options" id="stakeOpts">
+            <div class="stake-opt" data-amount="100" onclick="selectStake(this)">100<span class="unit">$rabbit</span></div>
+            <div class="stake-opt" data-amount="500" onclick="selectStake(this)">500<span class="unit">$rabbit</span></div>
+            <div class="stake-opt selected" data-amount="1000" onclick="selectStake(this)">1,000<span class="unit">$rabbit</span></div>
+            <div class="stake-opt" data-amount="5000" onclick="selectStake(this)">5,000<span class="unit">$rabbit</span></div>
+          </div>
+          <button class="play-btn" id="playBtn" onclick="startGame()">Enter the Arena</button>
+        </div>
+      </div>
+
+      <!-- MATCHING STATE -->
+      <div class="arena-state" id="matching">
+        <div class="match-text">Finding opponent</div>
+        <div class="match-dots"><div class="match-dot"></div><div class="match-dot"></div><div class="match-dot"></div></div>
+      </div>
+
+      <!-- COUNTDOWN STATE -->
+      <div class="arena-state" id="countdown">
+        <div class="cd-phase" onclick="falseStart()">
+          <div class="cd-ring-wrap">
+            <div class="cd-ring-pulse"></div>
+            <div class="cd-ring">
+              <div class="cd-word" id="cdWord">Wait</div>
+            </div>
+          </div>
+          <div class="cd-instruct" id="cdInstruct">Do not tap yet — wait for the signal</div>
+          <div class="heartbeat"><div class="heartbeat-line"></div></div>
+        </div>
+      </div>
+
+      <!-- GO STATE -->
+      <div class="arena-state" id="goState">
+        <div class="go-phase" onclick="recordReaction()">
+          <div class="go-flash"></div>
+          <div class="go-word">GO!</div>
+          <div class="go-tap">Tap now</div>
+        </div>
+      </div>
+
+      <!-- RESULT STATE -->
+      <div class="arena-state" id="result">
+        <div class="result-phase">
+          <div class="result-verdict" id="resVerdict">You win</div>
+          <div class="result-time" id="resTime">247<span class="ms">ms</span></div>
+          <div class="result-unit">reaction time</div>
+          <div class="result-vs" id="resVs">
+            <div class="vs-player"><div class="vs-label">You</div><div class="vs-time winner" id="resYou">247ms</div></div>
+            <div class="vs-divider">vs</div>
+            <div class="vs-player"><div class="vs-label">Opponent</div><div class="vs-time loser" id="resOpp">312ms</div></div>
+          </div>
+          <div class="result-payout" id="resPayout">You won <span>+1,000 $RABBIT</span></div>
+          <button class="again-btn" onclick="resetToLobby()">Play Again</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sb-section">
+        <div class="sb-title">Live Stats</div>
+        <div class="live-stats">
+          <div class="ls"><div class="ls-k">Games Today</div><div class="ls-v" id="statGames">1,847</div></div>
+          <div class="ls"><div class="ls-k">Total Staked</div><div class="ls-v"><span class="gold" id="statStaked">2.4M</span></div></div>
+          <div class="ls"><div class="ls-k">Avg Reaction</div><div class="ls-v" id="statAvg">289ms</div></div>
+          <div class="ls"><div class="ls-k">Players Online</div><div class="ls-v"><span class="gold" id="statOnline">142</span></div></div>
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title">Fastest Today</div>
+        <div id="leaderboard">
+          <div class="lb-row"><div class="lb-rank">1</div><div class="lb-addr">0x7a3f...e82d</div><div class="lb-time">127<span>ms</span></div></div>
+          <div class="lb-row"><div class="lb-rank">2</div><div class="lb-addr">0xd41c...9f1a</div><div class="lb-time">143<span>ms</span></div></div>
+          <div class="lb-row"><div class="lb-rank">3</div><div class="lb-addr">0x92b8...3c45</div><div class="lb-time">156<span>ms</span></div></div>
+          <div class="lb-row"><div class="lb-rank">4</div><div class="lb-addr">0x1e5a...d738</div><div class="lb-time">168<span>ms</span></div></div>
+          <div class="lb-row"><div class="lb-rank">5</div><div class="lb-addr">0xf83e...12ab</div><div class="lb-time">171<span>ms</span></div></div>
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title">Your History</div>
+        <div id="history">
+          <div style="font-size:.78rem;color:var(--earth);font-weight:300;padding:8px 0">Play your first game to see history here.</div>
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title">How It Works</div>
+        <div class="how-step"><div class="how-num">1</div><div class="how-text">Choose a stake amount and enter the arena.</div></div>
+        <div class="how-step"><div class="how-num">2</div><div class="how-text">You're matched with an opponent who staked the same amount.</div></div>
+        <div class="how-step"><div class="how-num">3</div><div class="how-text">Wait for the signal. A random delay keeps it fair — don't tap early or you forfeit.</div></div>
+        <div class="how-step"><div class="how-num">4</div><div class="how-text">When "GO!" appears, tap as fast as you can. Fastest reaction wins the pot.</div></div>
+        <div class="how-step"><div class="how-num">5</div><div class="how-text">Settlement is instant — on-chain in &lt;10ms on MegaETH.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ GAME STATE ═══
+let state='lobby';
+let stakeAmount=1000;
+let goTime=0;
+let gameHistory=[];
+let walletConnected=false;
+
+function setState(s){
+  document.querySelectorAll('.arena-state').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById(s);
+  if(el)el.classList.add('active');
+  state=s;
+}
+
+function selectStake(el){
+  document.querySelectorAll('.stake-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  stakeAmount=parseInt(el.dataset.amount);
+}
+
+function connectWallet(){
+  const btn=document.getElementById('walletBtn');
+  if(walletConnected){return}
+  btn.textContent='Connecting...';
+  setTimeout(()=>{
+    walletConnected=true;
+    btn.textContent='0x7a3f...e82d';
+    btn.classList.add('connected');
+  },800);
+}
+
+function startGame(){
+  if(!walletConnected){connectWallet();return}
+  setState('matching');
+
+  // simulate matchmaking
+  setTimeout(()=>{
+    setState('countdown');
+    startCountdown();
+  }, 1200+Math.random()*1200);
+}
+
+let countdownTimeout;
+function startCountdown(){
+  const word=document.getElementById('cdWord');
+  const instruct=document.getElementById('cdInstruct');
+  word.textContent='Wait';
+  word.style.color='var(--stone)';
+  instruct.textContent='Do not tap yet — wait for the signal';
+  instruct.classList.remove('cd-warn');
+
+  // random delay 2-6 seconds
+  const delay=2000+Math.random()*4000;
+  countdownTimeout=setTimeout(()=>{
+    goTime=performance.now();
+    setState('goState');
+  },delay);
+}
+
+function falseStart(){
+  if(state!=='countdown')return;
+  clearTimeout(countdownTimeout);
+  const word=document.getElementById('cdWord');
+  const instruct=document.getElementById('cdInstruct');
+  word.textContent='Too early';
+  word.style.color='var(--red)';
+  instruct.textContent='False start — you lose your stake';
+  instruct.classList.add('cd-warn');
+
+  setTimeout(()=>{
+    showResult(true);
+  },1200);
+}
+
+function recordReaction(){
+  if(state!=='goState')return;
+  const reaction=Math.round(performance.now()-goTime);
+  showResult(false,reaction);
+}
+
+function showResult(falseStarted,myTime){
+  setState('result');
+  const verdict=document.getElementById('resVerdict');
+  const time=document.getElementById('resTime');
+  const you=document.getElementById('resYou');
+  const opp=document.getElementById('resOpp');
+  const payout=document.getElementById('resPayout');
+  const vs=document.getElementById('resVs');
+
+  if(falseStarted){
+    verdict.textContent='False start';
+    verdict.className='result-verdict false-start';
+    time.innerHTML='DQ';
+    vs.style.display='none';
+    payout.innerHTML='You lost <span style="color:var(--red)">−'+stakeAmount.toLocaleString()+' $RABBIT</span>';
+    addHistory('L','DQ',stakeAmount);
+  } else {
+    // generate opponent time — usually close, sometimes way off
+    const oppBase=180+Math.random()*200;
+    const oppTime=Math.round(oppBase+(Math.random()>.5?Math.random()*80:-Math.random()*40));
+    const won=myTime<oppTime;
+
+    verdict.textContent=won?'You win':'You lose';
+    verdict.className='result-verdict '+(won?'win':'lose');
+    time.innerHTML=myTime+'<span class="ms">ms</span>';
+    vs.style.display='grid';
+    you.textContent=myTime+'ms';
+    you.className='vs-time '+(won?'winner':'loser');
+    opp.textContent=oppTime+'ms';
+    opp.className='vs-time '+(won?'loser':'winner');
+
+    if(won){
+      payout.innerHTML='You won <span>+'+stakeAmount.toLocaleString()+' $RABBIT</span>';
+    } else {
+      payout.innerHTML='You lost <span style="color:var(--red)">−'+stakeAmount.toLocaleString()+' $RABBIT</span>';
+    }
+    addHistory(won?'W':'L',myTime+'ms',stakeAmount);
+    updateLeaderboard(myTime);
+  }
+  updateStats();
+}
+
+function addHistory(result,time,stake){
+  gameHistory.unshift({result,time,stake});
+  if(gameHistory.length>8)gameHistory.pop();
+  const el=document.getElementById('history');
+  el.innerHTML=gameHistory.map(h=>`
+    <div class="mh-row">
+      <div class="mh-result ${h.result==='W'?'w':'l'}">${h.result==='W'?'Win':'Loss'}</div>
+      <div class="mh-time">${h.time}</div>
+      <div class="mh-stake">${h.stake.toLocaleString()} $R</div>
+    </div>
+  `).join('');
+}
+
+function updateLeaderboard(time){
+  // if player's time is fast enough, insert into leaderboard
+  if(time<171){
+    const lb=document.getElementById('leaderboard');
+    const rows=lb.querySelectorAll('.lb-row');
+    // find insertion point
+    let inserted=false;
+    for(let i=0;i<rows.length;i++){
+      const rowTime=parseInt(rows[i].querySelector('.lb-time').textContent);
+      if(time<rowTime){
+        const newRow=document.createElement('div');
+        newRow.className='lb-row';
+        newRow.innerHTML=`<div class="lb-rank">${i+1}</div><div class="lb-addr" style="color:var(--gold)">You</div><div class="lb-time">${time}<span>ms</span></div>`;
+        rows[i].before(newRow);
+        inserted=true;
+        // re-number and remove last
+        const allRows=lb.querySelectorAll('.lb-row');
+        allRows.forEach((r,idx)=>{r.querySelector('.lb-rank').textContent=idx+1});
+        if(allRows.length>5)allRows[allRows.length-1].remove();
+        break;
+      }
+    }
+  }
+}
+
+function updateStats(){
+  const g=document.getElementById('statGames');
+  const cur=parseInt(g.textContent.replace(/,/g,''));
+  g.textContent=(cur+1).toLocaleString();
+
+  const o=document.getElementById('statOnline');
+  o.textContent=Math.round(130+Math.random()*30);
+}
+
+function resetToLobby(){
+  setState('lobby');
+}
+
+// keyboard support — space bar to tap
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'||e.code==='Enter'){
+    e.preventDefault();
+    if(state==='countdown')falseStart();
+    else if(state==='goState')recordReaction();
+    else if(state==='lobby')startGame();
+    else if(state==='result')resetToLobby();
+  }
+});
+</script>
+</body>
+</html>
